@@ -9,7 +9,7 @@
   <!-- Font Awesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* Simple fade-in animations */
+    /* Simple fade‑in animations */
     .animate-fade-in-down {
       animation: fadeInDown 0.6s ease-out;
     }
@@ -18,11 +18,11 @@
     }
     @keyframes fadeInDown {
       from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
+      to   { opacity: 1; transform: translateY(0); }
     }
     @keyframes fadeIn {
       from { opacity: 0; }
-      to { opacity: 1; }
+      to   { opacity: 1; }
     }
   </style>
 </head>
@@ -43,17 +43,43 @@
   </header>
 
   <main class="pt-24">
-    <!-- Hero Section -->
-    <section id="hero" class="container mx-auto text-center py-20">
-      <h2 class="text-5xl font-extrabold mb-4 animate-fade-in-down">Hello, I'm <span class="text-blue-600">İlter</span>.</h2>
-      <p class="text-xl text-gray-700">SRE/Cloud Engineer at Upstash</p>
-      <p class="mt-4 max-w-xl mx-auto text-gray-600">
-        Currently working on supporting & developing our k8s infrastructure, our network infra on AWS and an automation tool for resource deployment on AWS.
-      </p>
-      <div class="mt-6 flex justify-center space-x-4 animate-fade-in">
-        <a href="https://www.linkedin.com/in/ilter-kavlak-05367112b" class="border border-gray-300 p-3 rounded-full hover:bg-gray-100"><i class="fab fa-linkedin fa-lg"></i></a>
-        <a href="https://github.com/ilterkavlak" class="border border-gray-300 p-3 rounded-full hover:bg-gray-100"><i class="fab fa-github fa-lg"></i></a>
-        <a href="https://x.com/ilterkavlak" class="border border-gray-300 p-3 rounded-full hover:bg-gray-100"><i class="fab fa-twitter fa-lg"></i></a>
+    <!-- Hero Section with stronger overlay, backdrop‑blur, and text panel -->
+    <section
+      id="hero"
+      class="relative bg-cover bg-center"
+      style="background-image: url('image.webp');"
+    >
+      <!-- Darker overlay for contrast -->
+      <div class="absolute inset-0 bg-gray-900 opacity-20"></div>
+
+      <!-- Hero content sits above -->
+      <div class="relative container mx-auto text-center py-32">
+        <!-- Semi‑transparent panel with blur -->
+        <div class="inline-block px-8 py-6 bg-black bg-opacity-80 backdrop-blur-md rounded-xl">
+          <h2 class="text-5xl font-extrabold mb-4 text-white drop-shadow-lg animate-fade-in-down">
+            Hello, I’m <span class="text-blue-400">İlter</span>.
+          </h2>
+          <p class="text-xl text-gray-200 mb-2 drop-shadow-sm">
+            SRE/Cloud Engineer at Upstash
+          </p>
+          <p class="max-w-lg mx-auto text-gray-300 drop-shadow-sm">
+            Currently working on supporting & developing our k8s infrastructure, our network infra on AWS and an automation tool for resource deployment on AWS.
+          </p>
+          <div class="mt-6 flex justify-center space-x-4 animate-fade-in">
+            <a href="https://www.linkedin.com/in/ilter-kavlak-05367112b"
+               class="border border-gray-300 p-3 hover:bg-gray-100 bg-white bg-opacity-20">
+              <i class="fab fa-linkedin fa-lg text-white"></i>
+            </a>
+            <a href="https://github.com/ilterkavlak"
+               class="border border-gray-300 p-3 hover:bg-gray-100 bg-white bg-opacity-20">
+              <i class="fab fa-github fa-lg text-white"></i>
+            </a>
+            <a href="https://x.com/ilterkavlak"
+               class="border border-gray-300 p-3 hover:bg-gray-100 bg-white bg-opacity-20">
+              <i class="fab fa-twitter fa-lg text-white"></i>
+            </a>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -80,12 +106,12 @@
           <p class="text-blue-600 font-medium mb-2">SRE/Cloud Engineer | October 2021 - Present</p>
           <ul class="list-disc list-inside text-gray-700 space-y-1">
             <li>Manage multiple Kubernetes clusters to ensure smooth operation of the product.</li>
-            <li>Apply industry-standard best practices for achieving high uptime.</li>
+            <li>Apply industry‑standard best practices for achieving high uptime.</li>
             <li>Manage cloud infrastructure in AWS and Google Cloud.</li>
             <li>Ensure compliance with SOC2 standards by implementing necessary mechanisms.</li>
             <li>Implement and maintain a payment automation system.</li>
             <li>Respond to incidents and troubleshoot issues on-call.</li>
-            <li>Develop customer-facing microservices for coordinating interactions with the product.</li>
+            <li>Develop customer‑facing microservices for coordinating interactions with the product.</li>
             <li>Develop internal microservices for tracking product usage and implementing usage notifications.</li>
             <li>Implement and maintain DevOps tools used within the company.</li>
           </ul>
@@ -98,15 +124,15 @@
             <li>Managed cloud infrastructure in AWS.</li>
             <li>Implemented and maintained DevOps tools used within the company.</li>
             <li>Maintained customer-facing logging infrastructure.</li>
-            <li>Responded to incidents as part of the on-call rotation.</li>
+            <li>Responded to incidents as part of the on‑call rotation.</li>
             <li>Managed EKS clusters for internal applications.</li>
             <li>Developed and maintained cross-region replication infrastructure for high availability.</li>
           </ul>
           <p class="text-blue-600 font-medium mt-4 mb-2">Data Engineer | June 2017 - August 2019</p>
           <ul class="list-disc list-inside text-gray-700 space-y-1">
             <li>Designed and implemented reporting infrastructure in AWS.</li>
-            <li>Implemented and maintained integrations with third-party systems for data collection and automation.</li>
-            <li>Managed Looker cluster and dashboards for data-driven product management and internal reporting.</li>
+            <li>Integrated third‑party systems for data collection and automation.</li>
+            <li>Managed Looker dashboards for product management and reporting.</li>
           </ul>
         </div>
         <!-- HAVELSAN -->
@@ -135,8 +161,12 @@
       <h3 class="text-3xl font-bold mb-4">Contact</h3>
       <p class="mb-6 text-gray-700">Feel free to connect with me on LinkedIn or Twitter.</p>
       <div class="flex justify-center space-x-6">
-        <a href="https://www.linkedin.com/in/ilter-kavlak-05367112b" class="border border-gray-300 p-3 rounded-full hover:bg-gray-100"><i class="fab fa-linkedin fa-lg"></i></a>
-        <a href="https://x.com/ilterkavlak" class="border border-gray-300 p-3 rounded-full hover:bg-gray-100"><i class="fab fa-twitter fa-lg"></i></a>
+        <a href="https://www.linkedin.com/in/ilter-kavlak-05367112b" class="border border-gray-300 p-3 rounded-full hover:bg-gray-100">
+          <i class="fab fa-linkedin fa-lg"></i>
+        </a>
+        <a href="https://x.com/ilterkavlak" class="border border-gray-300 p-3 rounded-full hover:bg-gray-100">
+          <i class="fab fa-twitter fa-lg"></i>
+        </a>
       </div>
     </section>
   </main>
@@ -145,6 +175,5 @@
   <footer class="bg-white shadow p-4 text-center">
     <p class="text-sm text-gray-500">© 2025 İlter Kavlak. All rights reserved.</p>
   </footer>
-
 </body>
 </html>
