@@ -1,112 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>İlter Kavlak - Portfolio</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>İlter Kavlak</title>
+  <!-- Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Simple fade-in animations */
+    .animate-fade-in-down {
+      animation: fadeInDown 0.6s ease-out;
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.8s ease-out;
+    }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
 </head>
-<body>
-<header>
-    <div class="logo">İlter<span>Kavlak</span></div>
-    <nav>
-        <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#experience">Experience</a></li>
-            <li><a href="#contact">Contact</a></li>
+<body class="min-h-screen bg-gray-50 text-gray-900">
+  <!-- Header -->
+  <header class="bg-white shadow fixed w-full z-10">
+    <div class="container mx-auto flex justify-between items-center p-4">
+      <h1 class="text-2xl font-bold">İlter Kavlak</h1>
+      <nav>
+        <ul class="flex space-x-6">
+          <li><a href="#hero" class="hover:text-blue-600">Home</a></li>
+          <li><a href="#about" class="hover:text-blue-600">About</a></li>
+          <li><a href="#experience" class="hover:text-blue-600">Experience</a></li>
+          <li><a href="#contact" class="hover:text-blue-600">Contact</a></li>
         </ul>
-    </nav>
-</header>
-<main>
-    <section id="home" class="intro">
-        <div class="intro-text">
-            <h1>Hello, I'm İlter.</h1>
-            <h2>SRE/Cloud Engineer at Upstash</h2>
-            <p>Currently working on supporting & developing our k8s infrastructure, our network infra on AWS and an automation tool for resource deployment on AWS.</p>
-        </div>
-        <div class="intro-image">
-            <img src="ilter.jpg" alt="İlter Kavlak">
-        </div>
-    </section>
-    <div class="social-icons">
-        <a href="https://www.linkedin.com/in/ilter-kavlak-05367112b"><img src="linkedin.png" alt="LinkedIn"></a>
-        <a href="#"><img src="github.png" alt="GitHub"></a>
-        <a href="#"><img src="twitter.png" alt="Twitter"></a>
-        <a href="#"><img src="instagram.png" alt="Instagram"></a>
-        <a href="#"><img src="facebook.png" alt="Facebook"></a>
+      </nav>
     </div>
-    <section id="about">
-        <h2>About</h2>
-        <p>I am a dedicated SRE/Cloud Engineer with extensive experience in managing and optimizing cloud infrastructure. I am passionate about automation, DevOps, and ensuring high availability and reliability of services.</p>
+  </header>
+
+  <main class="pt-24">
+    <!-- Hero Section -->
+    <section id="hero" class="container mx-auto text-center py-20">
+      <h2 class="text-5xl font-extrabold mb-4 animate-fade-in-down">Hello, I'm <span class="text-blue-600">İlter</span>.</h2>
+      <p class="text-xl text-gray-700">SRE/Cloud Engineer at Upstash</p>
+      <p class="mt-4 max-w-xl mx-auto text-gray-600">
+        Currently working on supporting & developing our k8s infrastructure, our network infra on AWS and an automation tool for resource deployment on AWS.
+      </p>
+      <div class="mt-6 flex justify-center space-x-4 animate-fade-in">
+        <a href="https://www.linkedin.com/in/ilterkavlak" class="border border-gray-300 p-3 rounded-full hover:bg-gray-100"><i class="fab fa-linkedin fa-lg"></i></a>
+        <a href="https://github.com/ilterkavlak" class="border border-gray-300 p-3 rounded-full hover:bg-gray-100"><i class="fab fa-github fa-lg"></i></a>
+        <a href="https://twitter.com/ilterkavlak" class="border border-gray-300 p-3 rounded-full hover:bg-gray-100"><i class="fab fa-twitter fa-lg"></i></a>
+        <a href="https://instagram.com/ilterkavlak" class="border border-gray-300 p-3 rounded-full hover:bg-gray-100"><i class="fab fa-instagram fa-lg"></i></a>
+        <a href="https://facebook.com/ilterkavlak" class="border border-gray-300 p-3 rounded-full hover:bg-gray-100"><i class="fab fa-facebook fa-lg"></i></a>
+      </div>
     </section>
-    <section id="experience">
-        <h2>Experience</h2>
-        <div class="job">
-            <h3>Upstash</h3>
-            <h4>SRE/Cloud Engineer</h4>
-            <p>October 2021 - Present</p>
-            <ul>
-                <li>Manage multiple Kubernetes clusters to ensure smooth operation of the product.</li>
-                <li>Apply industry-standard best practices for achieving high uptime.</li>
-                <li>Manage cloud infrastructure in Amazon Web Services (AWS) and Google Cloud.</li>
-                <li>Ensure compliance with SOC2 standards by implementing necessary mechanisms.</li>
-                <li>Implement and maintain a payment automation system.</li>
-                <li>Respond to incidents and troubleshoot issues on-call.</li>
-                <li>Develop customer-facing microservices for coordinating interactions with the product.</li>
-                <li>Develop internal microservices for tracking product usage and implementing usage notifications.</li>
-                <li>Implement and maintain DevOps tools used within the company.</li>
-            </ul>
-        </div>
-        <div class="job">
-            <h3>Atlassian</h3>
-            <h4>SRE/Cloud Engineer</h4>
-            <p>August 2019 - September 2021 (2 years 2 months)</p>
-            <ul>
-                <li>Managed cloud infrastructure in Amazon Web Services (AWS).</li>
-                <li>Implemented and maintained DevOps tools used within the company.</li>
-                <li>Maintained customer-facing logging infrastructure.</li>
-                <li>Responded to incidents as part of the on-call rotation.</li>
-                <li>Managed EKS clusters for internal applications.</li>
-                <li>Developed and maintained cross-region replication infrastructure for high availability.</li>
-            </ul>
-            <h4>Data Engineer</h4>
-            <p>June 2017 - August 2019 (2 years 3 months)</p>
-            <ul>
-                <li>Designed and implemented reporting infrastructure in Amazon Web Services (AWS).</li>
-                <li>Implemented and maintained integrations with third-party systems for data collection and automation.</li>
-                <li>Managed Looker cluster and dashboards for data-driven product management and internal reporting.</li>
-            </ul>
-        </div>
-        <div class="job">
-            <h3>HAVELSAN</h3>
-            <h4>Software Engineer</h4>
-            <p>February 2017 - May 2017 (4 months)</p>
-            <p>Worked on ARMADA private cloud project.</p>
-            <h4>Candidate Engineer</h4>
-            <p>April 2016 - February 2017 (11 months)</p>
-            <p>Worked on ARMADA private cloud project.</p>
-        </div>
-        <div class="job">
-            <h3>Aselsan</h3>
-            <h4>Intern</h4>
-            <p>June 2015 - July 2015 (2 months)</p>
-        </div>
-        <div class="job">
-            <h3>İhsan Doğramacı Bilkent University</h3>
-            <h4>Lab Tutor</h4>
-            <p>February 2014 - June 2014 (5 months)</p>
-        </div>
+
+    <!-- About Section -->
+    <section id="about" class="container mx-auto py-20">
+      <div class="bg-white shadow-lg rounded-2xl p-6">
+        <h3 class="text-3xl font-bold mb-4">About Me</h3>
+        <p class="text-gray-700 mb-4">
+          I am a dedicated SRE/Cloud Engineer with extensive experience in managing and optimizing cloud infrastructure. I am passionate about automation, DevOps, and ensuring high availability and reliability of services.
+        </p>
+        <p class="text-gray-700">
+          In my free time, I’m a proud dad who enjoys playing PC games, strumming my acoustic guitar, and getting lost in a good book.
+        </p>
+      </div>
     </section>
-    <section id="contact">
-        <h2>Contact</h2>
-        <p><a href="https://www.linkedin.com/in/ilter-kavlak-05367112b">LinkedIn</a></p>
-        <p><a href="https://x.com/ilterkavlak">Twitter</a></p>
+
+    <!-- Experience Section -->
+    <section id="experience" class="container mx-auto py-20">
+      <h3 class="text-3xl font-bold text-center mb-8">Experience</h3>
+      <div class="space-y-8">
+        <!-- Upstash -->
+        <div class="bg-white shadow-lg rounded-2xl p-6">
+          <h4 class="text-2xl font-semibold">Upstash</h4>
+          <p class="text-blue-600 font-medium mb-2">SRE/Cloud Engineer | October 2021 - Present</p>
+          <ul class="list-disc list-inside text-gray-700 space-y-1">
+            <li>Manage multiple Kubernetes clusters to ensure smooth operation of the product.</li>
+            <li>Apply industry-standard best practices for achieving high uptime.</li>
+            <li>Manage cloud infrastructure in AWS and Google Cloud.</li>
+            <li>Ensure compliance with SOC2 standards by implementing necessary mechanisms.</li>
+            <li>Implement and maintain a payment automation system.</li>
+            <li>Respond to incidents and troubleshoot issues on-call.</li>
+            <li>Develop customer-facing microservices for coordinating interactions with the product.</li>
+            <li>Develop internal microservices for tracking product usage and implementing usage notifications.</li>
+            <li>Implement and maintain DevOps tools used within the company.</li>
+          </ul>
+        </div>
+        <!-- Atlassian -->
+        <div class="bg-white shadow-lg rounded-2xl p-6">
+          <h4 class="text-2xl font-semibold">Atlassian</h4>
+          <p class="text-blue-600 font-medium mb-2">SRE/Cloud Engineer | August 2019 - September 2021</p>
+          <ul class="list-disc list-inside text-gray-700 space-y-1">
+            <li>Managed cloud infrastructure in AWS.</li>
+            <li>Implemented and maintained DevOps tools used within the company.</li>
+            <li>Maintained customer-facing logging infrastructure.</li>
+            <li>Responded to incidents as part of the on-call rotation.</li>
+            <li>Managed EKS clusters for internal applications.</li>
+            <li>Developed and maintained cross-region replication infrastructure for high availability.</li>
+          </ul>
+          <p class="text-blue-600 font-medium mt-4 mb-2">Data Engineer | June 2017 - August 2019</p>
+          <ul class="list-disc list-inside text-gray-700 space-y-1">
+            <li>Designed and implemented reporting infrastructure in AWS.</li>
+            <li>Implemented and maintained integrations with third-party systems for data collection and automation.</li>
+            <li>Managed Looker cluster and dashboards for data-driven product management and internal reporting.</li>
+          </ul>
+        </div>
+        <!-- HAVELSAN -->
+        <div class="bg-white shadow-lg rounded-2xl p-6">
+          <h4 class="text-2xl font-semibold">HAVELSAN</h4>
+          <p class="text-blue-600 font-medium mb-2">Software Engineer | February 2017 - May 2017</p>
+          <p class="text-gray-700 mb-4">Worked on ARMADA private cloud project.</p>
+          <p class="text-blue-600 font-medium mb-2">Candidate Engineer | April 2016 - February 2017</p>
+          <p class="text-gray-700">Worked on ARMADA private cloud project.</p>
+        </div>
+        <!-- Aselsan -->
+        <div class="bg-white shadow-lg rounded-2xl p-6">
+          <h4 class="text-2xl font-semibold">Aselsan</h4>
+          <p class="text-blue-600 font-medium mb-2">Intern | June 2015 - July 2015</p>
+        </div>
+        <!-- University Tutor -->
+        <div class="bg-white shadow-lg rounded-2xl p-6">
+          <h4 class="text-2xl font-semibold">İhsan Doğramacı Bilkent University</h4>
+          <p class="text-blue-600 font-medium">Lab Tutor | February 2014 - June 2014</p>
+        </div>
+      </div>
     </section>
-</main>
-<footer>
-    <p>&copy; 2024 İlter Kavlak. All rights reserved.</p>
-</footer>
+
+    <!-- Contact Section -->
+    <section id="contact" class="container mx-auto py-20 text-center">
+      <h3 class="text-3xl font-bold mb-4">Contact</h3>
+      <p class="mb-6 text-gray-700">Feel free to connect with me on LinkedIn or Twitter.</p>
+      <div class="flex justify-center space-x-6">
+        <a href="https://www.linkedin.com/in/ilterkavlak" class="border border-gray-300 p-3 rounded-full hover:bg-gray-100"><i class="fab fa-linkedin fa-lg"></i></a>
+        <a href="https://twitter.com/ilterkavlak" class="border border-gray-300 p-3 rounded-full hover:bg-gray-100"><i class="fab fa-twitter fa-lg"></i></a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white shadow p-4 text-center">
+    <p class="text-sm text-gray-500">© 2025 İlter Kavlak. All rights reserved.</p>
+  </footer>
+
 </body>
 </html>
