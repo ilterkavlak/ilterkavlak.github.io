@@ -2779,21 +2779,21 @@
     function renderNitpickProject(root, project) {
       // Terminal demo: agent-centric run with structured JSON output + exit code.
       const term = `<span class="t-prompt">$</span> <span class="t-cmd">nitpick review</span> <span class="t-acc">https://github.com/org/repo/pull/42</span> \\
-    <span class="t-dim">--auto --non-interactive --json - --exit-on blockers</span>
+    <span class="t-dim">--auto --non-interactive --no-report --json - --exit-on blockers</span>
 
-<span class="t-ok">⚡</span> instrumenting sandbox               <span class="t-dim">(14s)</span>
-<span class="t-ok">✓</span> pr summary                          <span class="t-dim">2 hotspots</span>
-<span class="t-ok">✓</span> <span class="t-acc">security</span> reviewer                  <span class="t-warn">[ 2 findings ]</span>
-<span class="t-ok">✓</span> <span class="t-acc">performance</span> reviewer               <span class="t-warn">[ 1 finding  ]</span>
-<span class="t-ok">✓</span> <span class="t-acc">architecture</span> reviewer              <span class="t-ok">[ clean      ]</span>
-<span class="t-ok">✓</span> <span class="t-acc">testing</span> reviewer                   <span class="t-warn">[ 3 findings ]</span>
-<span class="t-ok">✓</span> <span class="t-acc">dx</span> reviewer                        <span class="t-ok">[ clean      ]</span>
-<span class="t-ok">✓</span> scanners · secrets / linter / osv   <span class="t-warn">[ 1 finding  ]</span>
+<span class="t-ok">✓</span> cloning repo in sandbox                     <span class="t-dim">(14s)</span>
+<span class="t-ok">✓</span> pr summary                                  <span class="t-dim">2 hotspot files</span>
+<span class="t-ok">✓</span> <span class="t-acc">security</span> reviewer                          <span class="t-warn">[ 2 findings ]</span>
+<span class="t-ok">✓</span> <span class="t-acc">performance</span> reviewer                       <span class="t-warn">[ 1 finding  ]</span>
+<span class="t-ok">✓</span> <span class="t-acc">architecture</span> reviewer                      <span class="t-ok">[ clean      ]</span>
+<span class="t-ok">✓</span> <span class="t-acc">testing</span> reviewer                           <span class="t-warn">[ 3 findings ]</span>
+<span class="t-ok">✓</span> <span class="t-acc">dx</span> reviewer                                <span class="t-ok">[ clean      ]</span>
+<span class="t-ok">✓</span> scanners · secrets / linter / dependencies  <span class="t-warn">[ 1 finding  ]</span>
 <span class="t-dim">→ verifier consolidating</span>
   <span class="t-dim">confirmed</span> <span class="t-ok">5</span> <span class="t-dim">·</span> <span class="t-dim">adjusted</span> <span class="t-warn">1</span> <span class="t-dim">·</span> <span class="t-dim">rejected</span> <span class="t-err">2</span>
 
-<span class="t-dim">{</span><span class="t-acc">"verdict"</span><span class="t-dim">:{</span><span class="t-acc">"mergeRecommendation"</span><span class="t-dim">:</span><span class="t-warn">"request-changes"</span><span class="t-dim">,</span>
-  <span class="t-acc">"risk"</span><span class="t-dim">:</span><span class="t-warn">0.62</span><span class="t-dim">,</span><span class="t-acc">"blockers"</span><span class="t-dim">:[ …2 items ],</span>
+<span class="t-dim">{</span><span class="t-acc">"verdict"</span><span class="t-dim">:{</span><span class="t-acc">"mergeRecommendation"</span><span class="t-dim">:</span><span class="t-warn">"request_changes"</span><span class="t-dim">,</span>
+  <span class="t-acc">"riskScore"</span><span class="t-dim">:</span><span class="t-warn">68</span><span class="t-dim">,</span><span class="t-acc">"blockers"</span><span class="t-dim">:[ …2 items ],</span>
   <span class="t-acc">"suggestedCommits"</span><span class="t-dim">:[ …3 items ]}}</span>
 
 <span class="t-err">exit 2</span> <span class="t-dim">— blockers detected</span>`;
@@ -2959,12 +2959,13 @@ nitpick review <span class="c-flag">--repo</span> org/repo <span class="c-flag">
             <article class="np-play reveal">
               <span class="np-play-tag">CI gate</span>
               <h3>Pre-merge reviewer bot</h3>
-              <p>Runs on every PR push. Posts the verdict and inline comments as a GitHub review, fails CI on <code>changes-requested</code>.</p>
+              <p>Runs on every PR push. Posts the verdict and inline comments as a GitHub review, fails CI on <code>changes-requested</code>. Also prints <code>verdict.summary</code> and top blockers to the CI logs.</p>
               <pre><span class="c-comment"># runs in your CI job</span>
 nitpick review <span class="c-path">&lt;PR_URL&gt;</span> <span class="c-flag">--auto</span> <span class="c-flag">--non-interactive</span> \\
-  <span class="c-flag">--post-review</span> <span class="c-flag">--exit-on</span> changes-requested</pre>
+  <span class="c-flag">--post-review</span> <span class="c-flag">--json</span> - \\
+  <span class="c-flag">--exit-on</span> changes-requested</pre>
               <div class="np-play-exits">
-                <span class="ok">0 · approved</span>
+                <span class="ok">0 · passes</span>
                 <span class="fail">2 · changes requested</span>
               </div>
             </article>
@@ -2972,14 +2973,14 @@ nitpick review <span class="c-path">&lt;PR_URL&gt;</span> <span class="c-flag">-
             <article class="np-play reveal">
               <span class="np-play-tag">Fix-until-clean</span>
               <h3>Convergence loop</h3>
-              <p>Agent pushes, reads blockers from JSON, patches each <code>filePath:lineStart</code>, commits, retries. Stops after N iterations or if the same blocker persists.</p>
+              <p>Agent pushes, reads <code>verdict.blockers</code> from JSON, edits each <code>filePath:lineStart</code> per <code>recommendation</code>, commits, retries. Stops after N iterations or if the same blocker persists.</p>
               <pre><span class="c-comment"># each iteration</span>
 nitpick review <span class="c-flag">--repo</span> <span class="c-path">&lt;owner/repo&gt;</span> \\
   <span class="c-flag">--base</span> main <span class="c-flag">--head</span> <span class="c-path">&lt;branch&gt;</span> \\
-  <span class="c-flag">--auto</span> <span class="c-flag">--non-interactive</span> \\
+  <span class="c-flag">--auto</span> <span class="c-flag">--non-interactive</span> <span class="c-flag">--no-report</span> \\
   <span class="c-flag">--json</span> - <span class="c-flag">--exit-on</span> blockers</pre>
               <div class="np-play-exits">
-                <span class="ok">0 · clean, stop</span>
+                <span class="ok">0 · no blockers, stop</span>
                 <span class="fail">2 · patch &amp; retry</span>
               </div>
             </article>
@@ -2987,11 +2988,11 @@ nitpick review <span class="c-flag">--repo</span> <span class="c-path">&lt;owner
             <article class="np-play reveal">
               <span class="np-play-tag">Pre-PR polish</span>
               <h3>One-pass cleanup</h3>
-              <p>Before opening a PR: run once, apply <code>recommendation</code>s from <code>acceptedFindings</code> with severity ≥ high, commit grouped fixes from <code>suggestedCommits</code>, push.</p>
+              <p>Before opening a PR: run once, apply <code>recommendation</code>s from <code>acceptedFindings</code> with severity ≥ high (and any <code>verdict.blockers</code>), commit grouped fixes via <code>suggestedCommits</code>, push.</p>
               <pre><span class="c-comment"># single pass, no loop</span>
 nitpick review <span class="c-flag">--repo</span> <span class="c-path">&lt;owner/repo&gt;</span> \\
   <span class="c-flag">--base</span> main <span class="c-flag">--head</span> <span class="c-path">&lt;branch&gt;</span> \\
-  <span class="c-flag">--auto</span> <span class="c-flag">--non-interactive</span> \\
+  <span class="c-flag">--auto</span> <span class="c-flag">--non-interactive</span> <span class="c-flag">--no-report</span> \\
   <span class="c-flag">--json</span> -</pre>
               <div class="np-play-exits">
                 <span>read &amp; apply</span>
@@ -3133,7 +3134,7 @@ reviewers:
         <section class="wrapper">
           <div class="np-cta reveal">
             <h2>Hand your agent a review step it can trust.</h2>
-            <p>Open source. No vendor lock, no telemetry, bring your own model key. Try it on your next PR — or your next agent loop.</p>
+            <p>Open source. No telemetry. Bring your own Upstash Box and GitHub credentials. Try it on your next PR — or your next agent loop.</p>
             <div class="np-ctas" style="margin-bottom:0;">
               <a class="np-btn primary" href="${project.repo}" target="_blank" rel="noopener">
                 <i class="fas fa-star"></i> Star on GitHub
