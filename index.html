@@ -1078,9 +1078,15 @@
       margin-top: -3rem; /* absorb the default tool-body top margin */
     }
 
-    /* Hero */
+    /* Hero — full-bleed gradient backdrop, content centred by an inner wrapper.
+       The hero breaks out of .tool-body's 1100px cap with the classic
+       "negative margin + 100vw" technique. body has overflow-x: hidden
+       so this can't spawn a horizontal scrollbar. */
     .np-hero {
       position: relative;
+      width: 100vw;
+      margin-left: calc(50% - 50vw);
+      margin-right: calc(50% - 50vw);
       padding: 5rem 0 4rem;
       text-align: center;
       overflow: hidden;
@@ -1088,14 +1094,19 @@
     .np-hero::before {
       content: '';
       position: absolute;
-      inset: -20% -10% auto -10%;
-      height: 70%;
+      inset: -20% 0 auto 0;
+      height: 120%;
       background:
-        radial-gradient(ellipse 60% 70% at 20% 20%, rgba(99, 102, 241, 0.18), transparent 60%),
-        radial-gradient(ellipse 55% 60% at 80% 30%, rgba(168, 85, 247, 0.15), transparent 60%),
-        radial-gradient(ellipse 50% 50% at 50% 80%, rgba(99, 102, 241, 0.12), transparent 60%);
+        radial-gradient(ellipse 42% 70% at 18% 25%, rgba(99, 102, 241, 0.22), transparent 60%),
+        radial-gradient(ellipse 40% 60% at 82% 30%, rgba(168, 85, 247, 0.20), transparent 60%),
+        radial-gradient(ellipse 55% 50% at 50% 85%, rgba(99, 102, 241, 0.14), transparent 65%);
       z-index: -1;
-      filter: blur(4px);
+      filter: blur(6px);
+      pointer-events: none;
+    }
+    .np-hero-content {
+      position: relative;
+      z-index: 1;
     }
     .np-mark {
       width: 72px;
@@ -1889,9 +1900,11 @@
               services, and the kind of quiet plumbing that makes a product feel trustworthy.
             </p>
             <p>
-              Away from the terminal, I'm a dad, a stubborn on-call strummer of an acoustic guitar,
-              a PC gamer with too many unfinished backlogs, and a reader who keeps buying books faster
-              than I can finish them.
+              Away from the terminal, being a dad is the best part of my life — I love my
+              child, and my wife, and my loved ones around me. When I do get some time to
+              myself, I usually spend it playing PC games or picking up my electric guitar;
+              both are how I clear my head. I'm also always curious about tech and pick
+              things up wherever the good stuff shows up — blog posts, talks, books, the rest.
             </p>
             <p>Some of the technologies I work with day to day:</p>
             <ul class="tech-grid">
@@ -2890,34 +2903,36 @@ nitpick review <span class="c-flag">--repo</span> org/repo <span class="c-flag">
 
       root.className = 'project-nitpick';
       root.innerHTML = `
-        <!-- Hero -->
-        <header class="np-hero wrapper">
-          <div class="np-mark" aria-hidden="true">${project.logo}</div>
-          <div class="np-pill"><span class="dot"></span> Open source · Built for agents</div>
-          <h1 class="np-headline">
-            The code-review primitive your <span class="grad">agent's loop</span> was missing.
-          </h1>
-          <p class="np-sub">
-            Nitpick runs five specialist reviewers and three scanners in parallel sandboxes
-            against a pull request or a branch, puts the findings through a verifier pass,
-            and emits a stable JSON verdict with meaningful exit codes. Wire it into a
-            fix-until-clean loop, a pre-PR polish step, or a CI gate — it never touches
-            your git history.
-          </p>
-          <div class="np-ctas">
-            <a class="np-btn primary" href="${project.repo}" target="_blank" rel="noopener">
-              <i class="fab fa-github"></i> View on GitHub
-            </a>
-            <a class="np-btn secondary" href="#np-agents">
-              <i class="fas fa-robot"></i> Built for agents
-            </a>
+        <!-- Hero (full-bleed background, centred content) -->
+        <header class="np-hero">
+          <div class="wrapper np-hero-content">
+            <div class="np-mark" aria-hidden="true">${project.logo}</div>
+            <div class="np-pill"><span class="dot"></span> Open source · Built for agents</div>
+            <h1 class="np-headline">
+              The code-review primitive your <span class="grad">agent's loop</span> was missing.
+            </h1>
+            <p class="np-sub">
+              Nitpick runs five specialist reviewers and three scanners in parallel sandboxes
+              against a pull request or a branch, puts the findings through a verifier pass,
+              and emits a stable JSON verdict with meaningful exit codes. Wire it into a
+              fix-until-clean loop, a pre-PR polish step, or a CI gate — it never touches
+              your git history.
+            </p>
+            <div class="np-ctas">
+              <a class="np-btn primary" href="${project.repo}" target="_blank" rel="noopener">
+                <i class="fab fa-github"></i> View on GitHub
+              </a>
+              <a class="np-btn secondary" href="#np-agents">
+                <i class="fas fa-robot"></i> Built for agents
+              </a>
+            </div>
+            <ul class="np-stats">
+              <li><strong>5</strong> reviewer roles</li>
+              <li><strong>3</strong> automated scanners</li>
+              <li><strong>1</strong> verifier</li>
+              <li><strong>JSON</strong> contract</li>
+            </ul>
           </div>
-          <ul class="np-stats">
-            <li><strong>5</strong> reviewer roles</li>
-            <li><strong>3</strong> automated scanners</li>
-            <li><strong>1</strong> verifier</li>
-            <li><strong>JSON</strong> contract</li>
-          </ul>
         </header>
 
         <!-- Terminal demo -->
