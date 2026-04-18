@@ -1843,6 +1843,98 @@
     @media (max-width: 480px) {
       .splash-board { height: min(70vh, 560px); border-radius: 16px; }
     }
+
+    /* ──────────────────────────────────────────────
+       Pop — a button spawns, tap it to pop it.
+       Reuses .splash-board / .splash-hint / .splash-welcome / .splash-tip.
+       ────────────────────────────────────────────── */
+    .pop-btn {
+      position: absolute;
+      padding: 0;
+      margin: 0;
+      border: 6px solid rgba(255, 255, 255, 0.95);
+      border-radius: 50%;
+      color: white;
+      font-family: -apple-system, 'Inter', 'Apple Color Emoji', 'Segoe UI Emoji',
+                   'Segoe UI Symbol', 'Noto Color Emoji', sans-serif;
+      font-weight: 800;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transform: translate(-50%, -50%) scale(0);
+      animation: popSpawn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      box-shadow:
+        0 14px 32px rgba(15, 23, 42, 0.25),
+        0 4px 10px rgba(15, 23, 42, 0.12),
+        inset 0 3px 8px rgba(255, 255, 255, 0.22);
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+      will-change: transform, opacity;
+    }
+    .pop-btn::after {
+      /* Soft pulsing halo ring to draw attention */
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 4px solid currentColor;
+      color: inherit;
+      opacity: 0;
+      animation: popRing 1.8s 0.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+      pointer-events: none;
+    }
+    .pop-btn:active {
+      filter: brightness(1.08);
+    }
+    .pop-btn:focus-visible {
+      box-shadow:
+        0 14px 32px rgba(15, 23, 42, 0.25),
+        0 4px 10px rgba(15, 23, 42, 0.12),
+        inset 0 3px 8px rgba(255, 255, 255, 0.22),
+        0 0 0 4px rgba(15, 118, 110, 0.35);
+    }
+    .pop-btn.popping {
+      animation: popOut 0.5s cubic-bezier(0.5, 0, 0.75, 0) forwards;
+      pointer-events: none;
+    }
+    .pop-btn.popping::after { animation: none; opacity: 0; }
+
+    @keyframes popSpawn {
+      0%   { transform: translate(-50%, -50%) scale(0)    rotate(-22deg); opacity: 0; }
+      60%  { transform: translate(-50%, -50%) scale(1.18) rotate(6deg);   opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1)    rotate(0deg);   opacity: 1; }
+    }
+    @keyframes popOut {
+      0%   { transform: translate(-50%, -50%) scale(1)    rotate(0);    opacity: 1; }
+      30%  { transform: translate(-50%, -50%) scale(1.4)  rotate(4deg); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(2.6)  rotate(10deg); opacity: 0; }
+    }
+    @keyframes popRing {
+      0%   { transform: scale(1);   opacity: 0.65; }
+      100% { transform: scale(1.55); opacity: 0;   }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .pop-btn { animation-duration: 0.2s; }
+      .pop-btn::after { animation: none; opacity: 0; }
+      .pop-btn.popping { animation-duration: 0.25s; }
+    }
+
+    /* Slightly brighter board tint so buttons pop harder */
+    .pop-board {
+      background:
+        radial-gradient(ellipse 60% 45% at 18% 20%, rgba(253, 186, 116, 0.45), transparent 60%),
+        radial-gradient(ellipse 55% 45% at 82% 22%, rgba(167, 243, 208, 0.45), transparent 60%),
+        radial-gradient(ellipse 55% 45% at 18% 82%, rgba(221, 214, 254, 0.5),  transparent 60%),
+        radial-gradient(ellipse 55% 45% at 82% 82%, rgba(253, 164, 175, 0.45), transparent 60%),
+        radial-gradient(ellipse 70% 55% at 50% 50%, rgba(255, 255, 255, 0.6),  transparent 70%),
+        linear-gradient(135deg, #fff7ed 0%, #fef3f2 50%, #f0fdfa 100%);
+    }
   </style>
 </head>
 <body>
@@ -2586,6 +2678,12 @@
         desc: 'Press any key or tap the board — a burst of colour and a friendly note. Made for tiny hands.',
         group: 'Fun',
         custom: renderSplash
+      },
+      {
+        id: 'pop', label: 'Pop', icon: 'bullseye',
+        desc: 'A friendly button appears somewhere on the board. Tap it to make it pop with a random chime, then another one shows up.',
+        group: 'Fun',
+        custom: renderPop
       }
     ];
 
@@ -2647,7 +2745,7 @@
        Home page: tools teaser
        ───────────────────────────────────────────── */
     function renderTeaser() {
-      const featured = ['splash', 'length', 'temperature', 'volume', 'storage', 'numbers'];
+      const featured = ['splash', 'pop', 'length', 'temperature', 'volume', 'numbers'];
       const teaser = document.getElementById('toolsTeaser');
       teaser.innerHTML = featured.map(id => {
         const t = toolById[id];
@@ -3820,6 +3918,196 @@ reviewers:
       /* Cleanup on route change */
       return function cleanup() {
         document.removeEventListener('keydown', onKeyDown);
+        if (audioCtx) {
+          try { audioCtx.close(); } catch (_) {}
+          audioCtx = null;
+        }
+      };
+    }
+
+    /* ─────────────────────────────────────────────
+       Pop — a friendly button appears. Tap to pop,
+       hear a chime, next one spawns elsewhere.
+       ───────────────────────────────────────────── */
+    function renderPop(root) {
+      const COLORS = [
+        '#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF',
+        '#B983FF', '#FF9F45', '#FF66C4', '#00D9C0',
+        '#F472B6', '#34D399'
+      ];
+      const ICONS = ['★', '✦', '♥', '✿', '❋', '●', '▲', '◆', '✺', '♪'];
+      const NOTES = [
+        261.63, 293.66, 329.63, 392.00, 440.00,
+        523.25, 587.33, 659.25, 783.99, 880.00,
+        1046.50, 1174.66, 1318.51
+      ];
+
+      root.innerHTML = `
+        <div class="splash-wrap">
+          <div class="splash-hint">
+            Find the button and pop it
+            <button class="splash-mute" data-mute type="button" aria-pressed="false">
+              <i class="fas fa-volume-high" data-mute-icon></i> <span data-mute-label>Sound on</span>
+            </button>
+          </div>
+          <div class="splash-board pop-board" id="popBoard" aria-label="Tap the button to pop it">
+            <div class="splash-welcome" data-welcome>
+              <span class="emoji" aria-hidden="true">🎯</span>
+              Tap the board to start
+            </div>
+          </div>
+          <div class="splash-tip">Works with touch, mouse and trackpad</div>
+        </div>
+      `;
+
+      const board    = root.querySelector('#popBoard');
+      const welcome  = root.querySelector('[data-welcome]');
+      const muteBtn  = root.querySelector('[data-mute]');
+      const muteIcon = root.querySelector('[data-mute-icon]');
+      const muteLbl  = root.querySelector('[data-mute-label]');
+
+      let audioCtx = null;
+      let muted    = false;
+      let started  = false;
+      let lastX = -9999, lastY = -9999;
+      let lastNoteIdx = -1;
+      let spawnTimer = null;
+
+      function ensureAudio() {
+        if (!audioCtx) {
+          try {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (!AC) return null;
+            audioCtx = new AC();
+          } catch (_) { return null; }
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+      }
+
+      function playNote(freq) {
+        if (muted) return;
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const gain2 = ctx.createGain();
+        osc1.type = 'triangle';
+        osc1.frequency.value = freq;
+        osc2.type = 'sine';
+        osc2.frequency.value = freq * 2;
+        osc1.connect(gain); osc2.connect(gain2);
+        gain.connect(ctx.destination); gain2.connect(ctx.destination);
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.exponentialRampToValueAtTime(0.28, now + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+        gain2.gain.setValueAtTime(0.0001, now);
+        gain2.gain.exponentialRampToValueAtTime(0.09, now + 0.02);
+        gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+        osc1.start(now); osc2.start(now);
+        osc1.stop(now + 0.55);
+        osc2.stop(now + 0.4);
+      }
+
+      function nextNote() {
+        let idx;
+        do { idx = Math.floor(Math.random() * NOTES.length); }
+        while (idx === lastNoteIdx && NOTES.length > 1);
+        lastNoteIdx = idx;
+        return NOTES[idx];
+      }
+
+      function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+      function spawn() {
+        if (!document.body.contains(board)) return; // cleaned up mid-timer
+        const rect = board.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) return;
+
+        // Buttons are finger-sized. Avoid edges, and try not to land on
+        // the same spot we just vacated.
+        const size = 110 + Math.random() * 60;     // 110–170 px
+        const pad  = size / 2 + 14;
+        let x = 0, y = 0;
+        for (let i = 0; i < 10; i++) {
+          x = pad + Math.random() * Math.max(1, rect.width  - 2 * pad);
+          y = pad + Math.random() * Math.max(1, rect.height - 2 * pad);
+          if (Math.hypot(x - lastX, y - lastY) > 160) break;
+        }
+        lastX = x; lastY = y;
+
+        const color = pick(COLORS);
+        const icon  = pick(ICONS);
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'pop-btn';
+        btn.style.left   = x + 'px';
+        btn.style.top    = y + 'px';
+        btn.style.width  = size + 'px';
+        btn.style.height = size + 'px';
+        btn.style.background = color;
+        btn.style.fontSize   = Math.round(size * 0.48) + 'px';
+        btn.textContent = icon;
+        btn.setAttribute('aria-label', 'Pop');
+        btn.addEventListener('pointerdown', onPop);
+        board.appendChild(btn);
+      }
+
+      function onPop(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const btn = e.currentTarget;
+        btn.removeEventListener('pointerdown', onPop);
+        btn.classList.add('popping');
+
+        playNote(nextNote());
+        if (navigator.vibrate) {
+          try { navigator.vibrate(30); } catch (_) {}
+        }
+
+        if (welcome) welcome.style.display = 'none';
+        started = true;
+
+        // Remove the popped button after its exit animation, then queue
+        // the next one. Clearing any pending timer avoids double-spawns.
+        setTimeout(() => btn.remove(), 500);
+        clearTimeout(spawnTimer);
+        spawnTimer = setTimeout(spawn, 320);
+      }
+
+      function onBoardDown(e) {
+        if (started) return;
+        // Any tap / click on the board before the game has started kicks
+        // things off (spawns the first button + hides the welcome text).
+        started = true;
+        if (welcome) welcome.style.display = 'none';
+        ensureAudio(); // warm up the audio context inside this user gesture
+        spawn();
+      }
+
+      function onMute() {
+        muted = !muted;
+        muteBtn.classList.toggle('is-off', muted);
+        muteBtn.setAttribute('aria-pressed', String(muted));
+        muteIcon.className = muted ? 'fas fa-volume-xmark' : 'fas fa-volume-high';
+        muteLbl.textContent = muted ? 'Sound off' : 'Sound on';
+        if (muted && audioCtx) {
+          try { audioCtx.suspend(); } catch (_) {}
+        }
+      }
+
+      board.addEventListener('pointerdown', onBoardDown);
+      board.addEventListener('contextmenu', (e) => e.preventDefault());
+      muteBtn.addEventListener('click', onMute);
+
+      return function cleanup() {
+        clearTimeout(spawnTimer);
         if (audioCtx) {
           try { audioCtx.close(); } catch (_) {}
           audioCtx = null;
