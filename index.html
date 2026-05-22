@@ -3009,170 +3009,6 @@
 
     const TOOLS = [
       {
-        id: 'length', label: 'Length', icon: 'ruler-horizontal',
-        desc: 'Convert between metres, kilometres, feet, inches, miles and other units of distance.',
-        group: 'Common',
-        factors: {
-          nanometer:   { label: 'Nanometre',         short: 'nm',  factor: 1e-9 },
-          micrometer:  { label: 'Micrometre',        short: 'µm',  factor: 1e-6 },
-          millimeter:  { label: 'Millimetre',        short: 'mm',  factor: 1e-3 },
-          centimeter:  { label: 'Centimetre',        short: 'cm',  factor: 1e-2 },
-          meter:       { label: 'Metre',             short: 'm',   factor: 1, defaultFrom: true },
-          kilometer:   { label: 'Kilometre',         short: 'km',  factor: 1e3 },
-          inch:        { label: 'Inch',              short: 'in',  factor: 0.0254 },
-          foot:        { label: 'Foot',              short: 'ft',  factor: 0.3048 },
-          yard:        { label: 'Yard',              short: 'yd',  factor: 0.9144 },
-          mile:        { label: 'Mile',              short: 'mi',  factor: 1609.344 },
-          nauticalMile:{ label: 'Nautical mile',     short: 'nmi', factor: 1852 }
-        }
-      },
-      {
-        id: 'mass', label: 'Weight / Mass', icon: 'weight-hanging',
-        desc: 'Convert between grams, kilograms, pounds, ounces, tonnes and other units of mass.',
-        group: 'Common',
-        factors: {
-          milligram:  { label: 'Milligram',          short: 'mg',  factor: 1e-6 },
-          gram:       { label: 'Gram',               short: 'g',   factor: 1e-3 },
-          kilogram:   { label: 'Kilogram',           short: 'kg',  factor: 1, defaultFrom: true },
-          tonne:      { label: 'Metric tonne',       short: 't',   factor: 1e3 },
-          ounce:      { label: 'Ounce',              short: 'oz',  factor: 0.028349523125 },
-          pound:      { label: 'Pound',              short: 'lb',  factor: 0.45359237 },
-          stone:      { label: 'Stone',              short: 'st',  factor: 6.35029318 },
-          usTon:      { label: 'US short ton',       short: 'ton', factor: 907.18474 },
-          ukTon:      { label: 'UK long ton',        short: 't',   factor: 1016.0469088 }
-        }
-      },
-      {
-        id: 'temperature', label: 'Temperature', icon: 'temperature-half',
-        desc: 'Celsius, Fahrenheit, Kelvin and Rankine — a full non-linear conversion, not just factors.',
-        group: 'Common',
-        custom: renderTemperature
-      },
-      {
-        id: 'area', label: 'Area', icon: 'vector-square',
-        desc: 'Square metres, acres, hectares, square feet and more.',
-        group: 'Common',
-        factors: {
-          sqMillimeter:{ label: 'Square millimetre', short: 'mm²', factor: 1e-6 },
-          sqCentimeter:{ label: 'Square centimetre', short: 'cm²', factor: 1e-4 },
-          sqMeter:     { label: 'Square metre',      short: 'm²',  factor: 1, defaultFrom: true },
-          hectare:     { label: 'Hectare',           short: 'ha',  factor: 1e4 },
-          sqKilometer: { label: 'Square kilometre',  short: 'km²', factor: 1e6 },
-          sqInch:      { label: 'Square inch',       short: 'in²', factor: 0.00064516 },
-          sqFoot:      { label: 'Square foot',       short: 'ft²', factor: 0.09290304 },
-          sqYard:      { label: 'Square yard',       short: 'yd²', factor: 0.83612736 },
-          acre:        { label: 'Acre',              short: 'ac',  factor: 4046.8564224 },
-          sqMile:      { label: 'Square mile',       short: 'mi²', factor: 2589988.110336 }
-        }
-      },
-      {
-        id: 'volume', label: 'Volume', icon: 'flask',
-        desc: 'Millilitres, litres, gallons, cups and other cooking or industrial volume units.',
-        group: 'Common',
-        factors: {
-          milliliter: { label: 'Millilitre',         short: 'mL',    factor: 1e-3 },
-          centiliter: { label: 'Centilitre',         short: 'cL',    factor: 1e-2 },
-          liter:      { label: 'Litre',              short: 'L',     factor: 1, defaultFrom: true },
-          cubicMeter: { label: 'Cubic metre',        short: 'm³',    factor: 1000 },
-          cubicCm:    { label: 'Cubic centimetre',   short: 'cm³',   factor: 1e-3 },
-          cubicInch:  { label: 'Cubic inch',         short: 'in³',   factor: 0.016387064 },
-          cubicFoot:  { label: 'Cubic foot',         short: 'ft³',   factor: 28.316846592 },
-          usGallon:   { label: 'US gallon',          short: 'gal',   factor: 3.785411784 },
-          ukGallon:   { label: 'UK gallon',          short: 'gal',   factor: 4.54609 },
-          usQuart:    { label: 'US quart',           short: 'qt',    factor: 0.946352946 },
-          usPint:     { label: 'US pint',            short: 'pt',    factor: 0.473176473 },
-          usCup:      { label: 'US cup',             short: 'cup',   factor: 0.2365882365 },
-          usFlOz:     { label: 'US fluid ounce',     short: 'fl oz', factor: 0.0295735295625 },
-          usTablespoon:{ label:'US tablespoon',      short: 'tbsp',  factor: 0.01478676478125 },
-          usTeaspoon: { label: 'US teaspoon',        short: 'tsp',   factor: 0.00492892159375 },
-          barrelOil:  { label: 'Oil barrel',         short: 'bbl',   factor: 158.987294928 }
-        }
-      },
-      {
-        id: 'time', label: 'Time', icon: 'clock',
-        desc: 'Seconds, minutes, days, weeks, months and years.',
-        group: 'Common',
-        factors: {
-          nanosecond: { label: 'Nanosecond',         short: 'ns',  factor: 1e-9 },
-          microsecond:{ label: 'Microsecond',        short: 'µs',  factor: 1e-6 },
-          millisecond:{ label: 'Millisecond',        short: 'ms',  factor: 1e-3 },
-          second:     { label: 'Second',             short: 's',   factor: 1, defaultFrom: true },
-          minute:     { label: 'Minute',             short: 'min', factor: 60 },
-          hour:       { label: 'Hour',               short: 'h',   factor: 3600 },
-          day:        { label: 'Day',                short: 'd',   factor: 86400 },
-          week:       { label: 'Week',               short: 'wk',  factor: 604800 },
-          month:      { label: 'Month (30 d)',       short: 'mo',  factor: 2592000 },
-          year:       { label: 'Year (365 d)',       short: 'y',   factor: 31536000 },
-          decade:     { label: 'Decade',             short: 'dec', factor: 315360000 },
-          century:    { label: 'Century',            short: 'cent',factor: 3153600000 }
-        }
-      },
-      {
-        id: 'speed', label: 'Speed', icon: 'gauge-high',
-        desc: 'km/h, mph, m/s, knots and the occasional Mach.',
-        group: 'Common',
-        factors: {
-          meterPerSec: { label: 'Metre / second',   short: 'm/s',  factor: 1 },
-          kmPerHour:   { label: 'Kilometre / hour', short: 'km/h', factor: 1/3.6, defaultFrom: true },
-          milePerHour: { label: 'Mile / hour',      short: 'mph',  factor: 0.44704 },
-          knot:        { label: 'Knot',             short: 'kn',   factor: 0.5144444444444 },
-          footPerSec:  { label: 'Foot / second',    short: 'ft/s', factor: 0.3048 },
-          mach:        { label: 'Mach (sea level)', short: 'Ma',   factor: 343 }
-        }
-      },
-      {
-        id: 'pressure', label: 'Pressure', icon: 'gauge',
-        desc: 'Pascals, bars, psi, atmospheres and torr.',
-        group: 'Common',
-        factors: {
-          pascal:     { label: 'Pascal',             short: 'Pa',   factor: 1 },
-          hectopascal:{ label: 'Hectopascal',        short: 'hPa',  factor: 100 },
-          kilopascal: { label: 'Kilopascal',         short: 'kPa',  factor: 1000, defaultFrom: true },
-          megapascal: { label: 'Megapascal',         short: 'MPa',  factor: 1e6 },
-          bar:        { label: 'Bar',                short: 'bar',  factor: 1e5 },
-          millibar:   { label: 'Millibar',           short: 'mbar', factor: 100 },
-          psi:        { label: 'PSI',                short: 'psi',  factor: 6894.757 },
-          atmosphere: { label: 'Atmosphere (standard)', short: 'atm', factor: 101325 },
-          torr:       { label: 'Torr',               short: 'Torr', factor: 133.322 },
-          mmHg:       { label: 'Millimetre of Hg',   short: 'mmHg', factor: 133.322387415 }
-        }
-      },
-      {
-        id: 'energy', label: 'Energy', icon: 'bolt',
-        desc: 'Joules, calories, watt-hours, BTUs — anything that stores work.',
-        group: 'Science',
-        factors: {
-          joule:      { label: 'Joule',              short: 'J',   factor: 1 },
-          kilojoule:  { label: 'Kilojoule',          short: 'kJ',  factor: 1000, defaultFrom: true },
-          megajoule:  { label: 'Megajoule',          short: 'MJ',  factor: 1e6 },
-          gigajoule:  { label: 'Gigajoule',          short: 'GJ',  factor: 1e9 },
-          calorie:    { label: 'Calorie (small)',    short: 'cal', factor: 4.184 },
-          kcal:       { label: 'Kilocalorie',        short: 'kcal',factor: 4184 },
-          wattHour:   { label: 'Watt-hour',          short: 'Wh',  factor: 3600 },
-          kWh:        { label: 'Kilowatt-hour',      short: 'kWh', factor: 3.6e6 },
-          mWh:        { label: 'Megawatt-hour',      short: 'MWh', factor: 3.6e9 },
-          eV:         { label: 'Electron-volt',      short: 'eV',  factor: 1.602176634e-19 },
-          btu:        { label: 'British thermal unit', short:'BTU',factor: 1055.06 },
-          footPound:  { label: 'Foot-pound',         short: 'ft·lb', factor: 1.3558179483 },
-          therm:      { label: 'Therm',              short: 'thm', factor: 1.055056e8 }
-        }
-      },
-      {
-        id: 'power', label: 'Power', icon: 'plug',
-        desc: 'Watts, kilowatts, horsepower and BTU / hour.',
-        group: 'Science',
-        factors: {
-          milliwatt:   { label: 'Milliwatt',         short: 'mW',   factor: 1e-3 },
-          watt:        { label: 'Watt',              short: 'W',    factor: 1 },
-          kilowatt:    { label: 'Kilowatt',          short: 'kW',   factor: 1000, defaultFrom: true },
-          megawatt:    { label: 'Megawatt',          short: 'MW',   factor: 1e6 },
-          gigawatt:    { label: 'Gigawatt',          short: 'GW',   factor: 1e9 },
-          hpMetric:    { label: 'Horsepower (metric)',short:'PS',   factor: 735.49875 },
-          hpMechanical:{ label: 'Horsepower (mech.)',short:'hp',    factor: 745.6998715823 },
-          btuHour:     { label: 'BTU / hour',        short: 'BTU/h',factor: 0.29307107017 }
-        }
-      },
-      {
         id: 'storage', label: 'Data Storage', icon: 'hard-drive',
         desc: 'Bytes, kilobytes, gigabytes — and their binary twins (KiB, MiB, GiB).',
         group: 'Digital',
@@ -3192,73 +3028,6 @@
           tebibyte:    { label: 'Tebibyte (2⁴⁰)',    short: 'TiB', factor: 1099511627776 },
           petabyte:    { label: 'Petabyte (10¹⁵)',   short: 'PB',  factor: 1e15 }
         }
-      },
-      {
-        id: 'transfer', label: 'Data Transfer Rate', icon: 'wave-square',
-        desc: 'Bits per second, Mbps, GBps — for bandwidth and backups alike.',
-        group: 'Digital',
-        factors: {
-          bps:         { label: 'Bit / second',      short: 'bps',  factor: 1 },
-          Bps:         { label: 'Byte / second',     short: 'B/s',  factor: 8 },
-          kbps:        { label: 'Kilobit / second',  short: 'kbps', factor: 1000 },
-          KBps:        { label: 'Kilobyte / second', short: 'KB/s', factor: 8000 },
-          Mbps:        { label: 'Megabit / second',  short: 'Mbps', factor: 1e6, defaultFrom: true },
-          MBps:        { label: 'Megabyte / second', short: 'MB/s', factor: 8e6 },
-          Gbps:        { label: 'Gigabit / second',  short: 'Gbps', factor: 1e9 },
-          GBps:        { label: 'Gigabyte / second', short: 'GB/s', factor: 8e9 },
-          Tbps:        { label: 'Terabit / second',  short: 'Tbps', factor: 1e12 }
-        }
-      },
-      {
-        id: 'angle', label: 'Angle', icon: 'draw-polygon',
-        desc: 'Degrees, radians, gradians — and a few arc-minute fragments.',
-        group: 'Science',
-        factors: {
-          degree:      { label: 'Degree',            short: '°',   factor: Math.PI / 180, defaultFrom: true },
-          radian:      { label: 'Radian',            short: 'rad', factor: 1 },
-          gradian:     { label: 'Gradian',           short: 'gon', factor: Math.PI / 200 },
-          arcMinute:   { label: 'Arcminute',         short: '′',   factor: Math.PI / 10800 },
-          arcSecond:   { label: 'Arcsecond',         short: '″',   factor: Math.PI / 648000 },
-          revolution:  { label: 'Revolution',        short: 'rev', factor: 2 * Math.PI }
-        }
-      },
-      {
-        id: 'frequency', label: 'Frequency', icon: 'tower-broadcast',
-        desc: 'Hertz, kilohertz, megahertz, gigahertz — plus RPM.',
-        group: 'Science',
-        factors: {
-          hertz:       { label: 'Hertz',             short: 'Hz',  factor: 1 },
-          kilohertz:   { label: 'Kilohertz',         short: 'kHz', factor: 1000 },
-          megahertz:   { label: 'Megahertz',         short: 'MHz', factor: 1e6, defaultFrom: true },
-          gigahertz:   { label: 'Gigahertz',         short: 'GHz', factor: 1e9 },
-          rpm:         { label: 'Revolutions / min', short: 'rpm', factor: 1 / 60 }
-        }
-      },
-      {
-        id: 'force', label: 'Force', icon: 'hand-fist',
-        desc: 'Newtons, kilonewtons, pound-force, kilogram-force.',
-        group: 'Science',
-        factors: {
-          newton:      { label: 'Newton',            short: 'N',   factor: 1, defaultFrom: true },
-          kilonewton:  { label: 'Kilonewton',        short: 'kN',  factor: 1000 },
-          meganewton:  { label: 'Meganewton',        short: 'MN',  factor: 1e6 },
-          dyne:        { label: 'Dyne',              short: 'dyn', factor: 1e-5 },
-          poundForce:  { label: 'Pound-force',       short: 'lbf', factor: 4.4482216152605 },
-          kgForce:     { label: 'Kilogram-force',    short: 'kgf', factor: 9.80665 },
-          ounceForce:  { label: 'Ounce-force',       short: 'ozf', factor: 0.2780138509537 }
-        }
-      },
-      {
-        id: 'fuel', label: 'Fuel Economy', icon: 'gas-pump',
-        desc: 'mpg (US), mpg (UK), km / L and L / 100 km — with proper reciprocal maths.',
-        group: 'Common',
-        custom: renderFuelEconomy
-      },
-      {
-        id: 'numbers', label: 'Number Base', icon: 'calculator',
-        desc: 'Binary, octal, decimal, hexadecimal — all four shown at once.',
-        group: 'Digital',
-        custom: renderNumberBase
       },
       {
         id: 'splash', label: 'Splash', icon: 'wand-magic-sparkles',
@@ -3338,7 +3107,7 @@
        Home page: tools teaser
        ───────────────────────────────────────────── */
     function renderTeaser() {
-      const featured = ['splash', 'pop', 'stark', 'length', 'temperature', 'numbers'];
+      const featured = ['splash', 'pop', 'stark', 'storage'];
       const teaser = document.getElementById('toolsTeaser');
       teaser.innerHTML = featured.map(id => {
         const t = toolById[id];
@@ -4258,7 +4027,7 @@ reviewers:
       root.innerHTML = `
         <div class="splash-wrap">
           <div class="splash-hint">
-            Press any <kbd>key</kbd> · tap the board
+            Press any <kbd>key</kbd> · tap the board · <kbd>Shift</kbd>+<kbd>Esc</kbd> exits fullscreen
             <button class="splash-mute" data-mute type="button" aria-pressed="false">
               <i class="fas fa-volume-high" data-mute-icon></i> <span data-mute-label>Sound on</span>
             </button>
@@ -4469,7 +4238,47 @@ reviewers:
         return k.substring(0, 2).toUpperCase();
       }
 
+      /* ── Fullscreen lock ─────────────────────────
+         Splash enters fullscreen on any user gesture and
+         re-enters automatically if the browser kicks us
+         out (e.g. plain Esc). Shift+Esc is the only
+         sanctioned exit — it sets userExited so we stop
+         re-entering. Cleanup also marks userExited. */
+      const fsTarget = document.documentElement;
+      let userExited = false;
+
+      function fsElement() {
+        return document.fullscreenElement || document.webkitFullscreenElement || null;
+      }
+      function enterFs() {
+        if (userExited) return;
+        if (fsElement()) return;
+        const req = fsTarget.requestFullscreen || fsTarget.webkitRequestFullscreen;
+        if (!req) return;
+        try {
+          const p = req.call(fsTarget);
+          if (p && p.catch) p.catch(() => {});
+        } catch (_) {}
+      }
+      function exitFs() {
+        if (!fsElement()) return;
+        const exit = document.exitFullscreen || document.webkitExitFullscreen;
+        if (!exit) return;
+        try {
+          const p = exit.call(document);
+          if (p && p.catch) p.catch(() => {});
+        } catch (_) {}
+      }
+
       function onKeyDown(e) {
+        // Shift+Esc → user-sanctioned fullscreen exit.
+        if (e.key === 'Escape' && e.shiftKey) {
+          e.preventDefault();
+          userExited = true;
+          exitFs();
+          return;
+        }
+
         // Let browser shortcuts through.
         if (e.ctrlKey || e.metaKey || e.altKey) return;
         // Don't steal typing from inputs (belt-and-braces — the tool has none).
@@ -4477,6 +4286,10 @@ reviewers:
         if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
         // Stop if someone navigated away from this tool.
         if (!document.body.contains(board)) return;
+
+        // Any key gesture re-enters fullscreen if we were kicked out.
+        enterFs();
+
         if (IGNORE_KEYS.has(e.key)) return;
         if (e.repeat) return; // ignore key-repeat spam
 
@@ -4486,6 +4299,7 @@ reviewers:
 
       function onPointerDown(e) {
         e.preventDefault();
+        enterFs();
         try { board.setPointerCapture(e.pointerId); } catch (_) {}
         spawn(null, '', e.clientX, e.clientY);
       }
@@ -4511,6 +4325,8 @@ reviewers:
       /* Cleanup on route change */
       return function cleanup() {
         document.removeEventListener('keydown', onKeyDown);
+        userExited = true;
+        exitFs();
         if (audioCtx) {
           try { audioCtx.close(); } catch (_) {}
           audioCtx = null;
