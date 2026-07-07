@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects — İlter Kavlak</title>
+  <meta name="description" content="Side projects by İlter Kavlak — each with its own landing page." />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d1117" />
+  <link rel="canonical" href="https://ilterkavlak.github.io/projects/" />
+  <link rel="stylesheet" href="../assets/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="nav" aria-label="Primary">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">İlter Kavlak<span>.</span></a>
+      <div class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="index.html" aria-current="page">Projects</a>
+        <a href="../blog/index.html">Blog</a>
+        <a href="../games/index.html">Games</a>
+        <a href="../index.html#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="wrap wrap-wide">
+    <header class="hero">
+      <p class="role">Projects</p>
+      <h1>Things I build on weekends</h1>
+      <p class="tagline">Side projects I put real time into. Each one has its own landing page — click through for the full tour.</p>
+    </header>
+
+    <div class="card-grid" id="cards"></div>
+
+    <a class="back-link" href="../index.html">← Back home</a>
+  </main>
+
+  <footer class="site-footer wrap wrap-wide">
+    <p>© <span data-year>2026</span> İlter Kavlak</p>
+  </footer>
+
+  <script src="../assets/app.js"></script>
+  <script src="../data/projects.js"></script>
+  <script>
+    renderCards('cards', window.PROJECTS, {
+      emoji: '🛠️',
+      title: 'No projects listed yet',
+      body: 'Something is in the works — check back soon.'
+    });
+  </script>
+</body>
+</html>

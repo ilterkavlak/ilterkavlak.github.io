@@ -4,62 +4,283 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>nitpick — AI code review built for agents · İlter Kavlak</title>
-  <meta name="description" content="A code-review primitive for AI coding agents. Five specialist reviewers and three scanners run in parallel sandboxes, then a verifier consolidates findings into a stable JSON verdict with typed exit codes. Wire it into a fix-until-clean loop, a pre-PR polish step, or a CI gate." />
+  <meta name="description" content="A code-review primitive for AI coding agents. Specialist reviewers and scanners run in parallel sandboxes, then a verifier consolidates findings into a stable JSON verdict with typed exit codes. Wire it into a fix-until-clean loop, a pre-PR polish step, or a CI gate." />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d1117" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="İlter Kavlak" />
   <meta property="og:title" content="nitpick — AI code review built for agents" />
-  <meta property="og:description" content="A code-review primitive for AI coding agents. Five specialist reviewers + three scanners in parallel sandboxes. Stable JSON, typed exit codes. Wire it into a fix-until-clean loop or a CI gate." />
+  <meta property="og:description" content="A code-review primitive for AI coding agents. Specialist reviewers + scanners in parallel sandboxes. Stable JSON, typed exit codes. Wire it into a fix-until-clean loop or a CI gate." />
   <meta property="og:url" content="https://ilterkavlak.github.io/projects/nitpick/" />
   <meta property="og:image" content="https://ilterkavlak.github.io/projects/nitpick/og-image.png" />
-  <meta property="og:image:secure_url" content="https://ilterkavlak.github.io/projects/nitpick/og-image.png" />
   <meta property="og:image:type" content="image/png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="nitpick — Code review your agent's loop can gate on. Five AI reviewers and three scanners in parallel sandboxes." />
+  <meta property="og:image:alt" content="nitpick — code review your agent's loop can gate on." />
 
-  <!-- Twitter card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="nitpick — AI code review built for agents" />
-  <meta name="twitter:description" content="A code-review primitive for AI coding agents. 5 reviewers + 3 scanners in parallel sandboxes. Stable JSON, typed exit codes. Built for fix-until-clean loops and CI gates." />
+  <meta name="twitter:description" content="A code-review primitive for AI coding agents. Reviewers + scanners in parallel sandboxes. Stable JSON, typed exit codes." />
   <meta name="twitter:image" content="https://ilterkavlak.github.io/projects/nitpick/og-image.png" />
-  <meta name="twitter:image:alt" content="nitpick — Code review your agent's loop can gate on." />
 
-  <link rel="canonical" href="https://ilterkavlak.github.io/#projects/nitpick" />
-
-  <!-- Redirect human visitors to the SPA route (Twitter's scraper reads the meta tags before this fires). -->
-  <meta http-equiv="refresh" content="0; url=/#projects/nitpick" />
-  <script>
-    (function () {
-      // If we're already inside the SPA (e.g. the user pressed back), skip.
-      if (window.location.hash === '#projects/nitpick') return;
-      window.location.replace('/#projects/nitpick');
-    })();
-  </script>
-
+  <link rel="canonical" href="https://ilterkavlak.github.io/projects/nitpick/" />
+  <link rel="stylesheet" href="../../assets/styles.css" />
   <style>
-    html, body { margin: 0; padding: 0; background: #f6f7f9; }
-    body {
-      font-family: -apple-system, 'Inter', 'Segoe UI', Roboto, sans-serif;
-      color: #334155;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 2rem;
-      line-height: 1.6;
+    /* nitpick — page-specific styling */
+    .np-pill {
+      display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono);
+      font-size: 0.75rem; letter-spacing: 0.03em; color: var(--accent);
+      background: var(--accent-soft); border: 1px solid var(--border); padding: 0.3rem 0.75rem;
+      border-radius: 100px; margin-bottom: 1rem;
     }
-    a { color: #0f766e; }
-    .card { max-width: 480px; }
-    .card h1 { font-size: 1.1rem; color: #0b1220; margin: 0 0 0.5rem; }
+    .np-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+    .np-stats { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1.75rem; padding: 0; }
+    .np-stats li { font-size: 0.9rem; color: var(--text-muted); }
+    .np-stats strong { display: block; font-size: 1.5rem; color: var(--heading); font-weight: 800; }
+    .np-term {
+      margin-top: 2rem; border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; background: #0d1117; box-shadow: var(--shadow);
+    }
+    .np-term-chrome {
+      display: flex; align-items: center; gap: 0.4rem; padding: 0.6rem 0.9rem;
+      background: #161b22; border-bottom: 1px solid #262c36;
+    }
+    .np-term-chrome .light { width: 11px; height: 11px; border-radius: 50%; }
+    .np-term-chrome .r { background: #ff5f57; } .np-term-chrome .y { background: #febc2e; } .np-term-chrome .g { background: #28c840; }
+    .np-term-chrome .title { margin-left: 0.6rem; font-family: var(--font-mono); font-size: 0.75rem; color: #8b949e; }
+    .np-term pre { margin: 0; padding: 1.1rem 1.25rem; overflow-x: auto; font-size: 0.82rem; line-height: 1.7; color: #c9d1d9; }
+    .np-term .p { color: #2dd4bf; } .np-term .c { color: #79c0ff; } .np-term .a { color: #d2a8ff; }
+    .np-term .ok { color: #56d364; } .np-term .warn { color: #e3b341; } .np-term .dim { color: #6e7681; }
+
+    .np-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); gap: 1rem; margin-top: 1.5rem; }
+    .np-feature { padding: 1.25rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+    .np-feature h3 { margin-bottom: 0.4rem; }
+    .np-feature p { font-size: 0.9rem; color: var(--text-muted); margin: 0; }
+
+    .np-play { padding: 1.4rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+    .np-play-tag { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+    .np-play h3 { margin: 0.4rem 0 0.5rem; }
+    .np-play p { font-size: 0.9rem; color: var(--text-muted); }
+    .np-play code { background: var(--bg-subtle); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.85em; }
+
+    .np-code { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-top: 1rem; background: var(--surface); }
+    .np-code-head {
+      display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.9rem;
+      background: var(--bg-subtle); border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted);
+    }
+    .np-code-head button {
+      font: inherit; cursor: pointer; border: 1px solid var(--border-strong); background: var(--surface);
+      color: var(--text); border-radius: 6px; padding: 0.15rem 0.6rem; font-size: 0.72rem;
+    }
+    .np-code-head button:hover { color: var(--accent); border-color: var(--accent); }
+    .np-code pre { margin: 0; padding: 1rem 1.1rem; overflow-x: auto; font-size: 0.82rem; line-height: 1.65; color: var(--text); }
+    .np-code .cm { color: var(--text-muted); } .np-code .fl { color: var(--accent); }
+
+    .np-safety { margin-top: 1.5rem; padding: 1.25rem; border-left: 3px solid var(--accent); background: var(--bg-subtle); border-radius: 0 var(--radius) var(--radius) 0; }
+    .np-safety ul { margin: 0.6rem 0 0; padding: 0; }
+    .np-safety li { position: relative; padding-left: 1.1rem; margin-bottom: 0.35rem; font-size: 0.9rem; }
+    .np-safety li::before { content: "✓"; position: absolute; left: 0; color: var(--accent); }
+    .np-safety code { background: var(--surface); padding: 0.1rem 0.35rem; border-radius: 4px; }
+
+    .np-cta { margin-top: 3rem; padding: 2rem; text-align: center; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-subtle); }
+    .np-cta h2 { margin-bottom: 0.5rem; }
+    .np-cta .contact-row { justify-content: center; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Redirecting to nitpick…</h1>
-    <p>If you're not redirected automatically, <a href="/#projects/nitpick">open the nitpick landing page</a>.</p>
-  </div>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="nav" aria-label="Primary">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../../index.html">İlter Kavlak<span>.</span></a>
+      <div class="nav-links">
+        <a href="../../index.html">Home</a>
+        <a href="../index.html" aria-current="page">Projects</a>
+        <a href="../../blog/index.html">Blog</a>
+        <a href="../../games/index.html">Games</a>
+        <a href="../../index.html#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="wrap wrap-wide">
+    <header class="hero">
+      <div class="np-pill"><span class="dot"></span> Open source · built for agents</div>
+      <h1>The code-review primitive your agent's loop was missing.</h1>
+      <p class="tagline">
+        nitpick runs specialist reviewers and scanners in parallel sandboxes against a pull
+        request or a branch, puts the findings through a verifier pass, and emits a stable JSON
+        verdict with meaningful exit codes. Wire it into a fix-until-clean loop, a pre-PR polish
+        step, or a CI gate — it never touches your git history.
+      </p>
+      <div class="contact-row">
+        <a class="contact-btn primary" href="https://github.com/ilterkavlak/nitpick" target="_blank" rel="noopener">View on GitHub</a>
+        <a class="contact-btn" href="#agents">Built for agents</a>
+      </div>
+      <ul class="np-stats">
+        <li><strong>5</strong> reviewer roles</li>
+        <li><strong>3</strong> scanners</li>
+        <li><strong>1</strong> verifier</li>
+        <li><strong>JSON</strong> contract</li>
+      </ul>
+
+      <div class="np-term" role="img" aria-label="nitpick terminal output">
+        <div class="np-term-chrome"><span class="light r"></span><span class="light y"></span><span class="light g"></span><span class="title">agent runner · zsh</span></div>
+        <pre><span class="p">$</span> <span class="c">nitpick review</span> <span class="a">https://github.com/org/repo/pull/42</span> <span class="dim">--json -</span>
+<span class="dim">→ fanning out 5 reviewers + 3 scanners in sandboxes…</span>
+  <span class="ok">✓ security</span>      <span class="dim">no blockers</span>
+  <span class="warn">! performance</span>   <span class="dim">1 finding (high)</span>
+  <span class="ok">✓ architecture</span>  <span class="dim">2 notes</span>
+  <span class="ok">✓ testing</span>       <span class="dim">clean</span>
+  <span class="ok">✓ dx</span>            <span class="dim">1 note</span>
+<span class="dim">→ verifier consolidating…</span>
+<span class="warn">verdict: changes-requested</span>  <span class="dim">risk: medium · blockers: 1 · exit 2</span></pre>
+      </div>
+    </header>
+
+    <section class="section">
+      <h2 class="section-title">What's in the box</h2>
+      <h2>A review crew with a machine-readable verdict.</h2>
+      <p class="lede" style="margin-top:0.5rem;">
+        Humans get a colour-streamed terminal and a markdown report. Agents get structured JSON
+        and exit codes they can branch on. Same pipeline underneath.
+      </p>
+      <div class="np-grid">
+        <div class="np-feature"><h3>5 specialist reviewers</h3><p>Security, performance, architecture, testing, and DX — each a focused agent in its own sandbox.</p></div>
+        <div class="np-feature"><h3>3 automated scanners</h3><p>Secret detection, linter integration, and dependency checks run alongside the reviewers.</p></div>
+        <div class="np-feature"><h3>Verifier pass</h3><p>A second-pass agent re-checks every finding — confirms, adjusts, or rejects — before triage.</p></div>
+        <div class="np-feature"><h3>Stable JSON contract</h3><p>Verdict, risk, blockers, accepted findings, and suggested commits — a schema your loop can rely on.</p></div>
+        <div class="np-feature"><h3>Typed exit codes</h3><p>Branch on <code>0</code>, <code>findings</code>, <code>blockers</code>, or <code>changes-requested</code>. No log-scraping.</p></div>
+        <div class="np-feature"><h3>Never touches git</h3><p>Read-only against GitHub. No commits, pushes, or history rewrites — the agent applies fixes itself.</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="agents">
+      <h2 class="section-title">Built for agents</h2>
+      <h2>Wire it into your agent's loop.</h2>
+      <p class="lede" style="margin-top:0.5rem;">
+        Every invocation is a single atomic step: point at a ref or PR, get JSON back, branch on
+        the exit code. No state between runs.
+      </p>
+      <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));">
+        <article class="np-play">
+          <span class="np-play-tag">CI gate</span>
+          <h3>Pre-merge reviewer bot</h3>
+          <p>Runs on every PR push. Posts the verdict and inline comments as a GitHub review, fails CI on <code>changes-requested</code>.</p>
+        </article>
+        <article class="np-play">
+          <span class="np-play-tag">Fix-until-clean</span>
+          <h3>Convergence loop</h3>
+          <p>Agent reads <code>verdict.blockers</code>, edits each <code>filePath:lineStart</code> per <code>recommendation</code>, commits, retries until clean.</p>
+        </article>
+        <article class="np-play">
+          <span class="np-play-tag">Pre-PR polish</span>
+          <h3>One-pass cleanup</h3>
+          <p>Before opening a PR: run once, apply high-severity <code>recommendation</code>s, commit grouped fixes via <code>suggestedCommits</code>, push.</p>
+        </article>
+      </div>
+
+      <div class="np-safety">
+        <strong>Safety rails — what nitpick intentionally won't do:</strong>
+        <ul>
+          <li>No <code>git push</code>, <code>commit</code>, branch creation, or history rewrites.</li>
+          <li>No network calls beyond GitHub (read-only) and the sandbox.</li>
+          <li>No persistence of findings between runs — every invocation is stateless.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Install</h2>
+      <h2>Up and running in a minute.</h2>
+      <p class="lede" style="margin-top:0.5rem;">
+        Requires Node.js and an Upstash Box account for sandboxing. GitHub token falls back to
+        <code>gh auth token</code> if unset.
+      </p>
+      <div class="np-code">
+        <div class="np-code-head"><span>Install</span><button type="button" data-copy>Copy</button></div>
+        <pre data-raw="# clone &amp; install
+git clone https://github.com/ilterkavlak/nitpick.git
+cd nitpick &amp;&amp; pnpm install
+cp .env.example .env
+
+# install the nitpick binary globally
+pnpm pack
+pnpm add -g ./nitpick-*.tgz
+
+# verify
+nitpick --help"><span class="cm"># clone &amp; install</span>
+git clone https://github.com/ilterkavlak/nitpick.git
+cd nitpick &amp;&amp; pnpm install
+cp .env.example .env
+
+<span class="cm"># install the nitpick binary globally</span>
+pnpm pack
+pnpm add -g ./nitpick-*.tgz
+
+<span class="cm"># verify</span>
+nitpick --help</pre>
+      </div>
+      <div class="np-code">
+        <div class="np-code-head"><span>Usage</span><button type="button" data-copy>Copy</button></div>
+        <pre data-raw="# interactive — browse repos, pick a PR
+nitpick
+
+# one-shot review of a pull request
+nitpick review https://github.com/org/repo/pull/42
+
+# review a branch without an open PR
+nitpick review --repo org/repo --base main --head feature/xyz
+
+# agent / CI — JSON on stdout, exit code as the signal
+nitpick review --repo org/repo --base main --head feature \
+  --auto --non-interactive --json - --exit-on blockers"><span class="cm"># interactive — browse repos, pick a PR</span>
+nitpick
+
+<span class="cm"># one-shot review of a pull request</span>
+nitpick review https://github.com/org/repo/pull/42
+
+<span class="cm"># review a branch without an open PR</span>
+nitpick review <span class="fl">--repo</span> org/repo <span class="fl">--base</span> main <span class="fl">--head</span> feature/xyz
+
+<span class="cm"># agent / CI — JSON on stdout, exit code as the signal</span>
+nitpick review <span class="fl">--repo</span> org/repo <span class="fl">--base</span> main <span class="fl">--head</span> feature \
+  <span class="fl">--auto --non-interactive --json - --exit-on</span> blockers</pre>
+      </div>
+    </section>
+
+    <div class="np-cta">
+      <h2>Hand your agent a review step it can trust.</h2>
+      <p class="muted">Open source. No telemetry. Bring your own sandbox and GitHub credentials.</p>
+      <div class="contact-row">
+        <a class="contact-btn primary" href="https://github.com/ilterkavlak/nitpick" target="_blank" rel="noopener">Star on GitHub</a>
+        <a class="contact-btn" href="https://github.com/ilterkavlak/nitpick#readme" target="_blank" rel="noopener">Read the README</a>
+      </div>
+    </div>
+
+    <a class="back-link" href="../index.html">← All projects</a>
+  </main>
+
+  <footer class="site-footer wrap wrap-wide">
+    <p>© <span data-year>2026</span> İlter Kavlak · <a href="https://github.com/ilterkavlak/nitpick" target="_blank" rel="noopener">github.com/ilterkavlak/nitpick</a></p>
+  </footer>
+
+  <script src="../../assets/app.js"></script>
+  <script>
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-copy]');
+      if (!btn) return;
+      var pre = btn.closest('.np-code').querySelector('pre');
+      var raw = pre.getAttribute('data-raw') || pre.textContent;
+      var txt = raw.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+      navigator.clipboard.writeText(txt).then(function () {
+        var old = btn.textContent; btn.textContent = 'Copied';
+        setTimeout(function () { btn.textContent = old; }, 1500);
+      }).catch(function () {});
+    });
+  </script>
 </body>
 </html>

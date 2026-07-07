@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<!--
+  BLOG POST TEMPLATE
+  ==================
+  To publish a post:
+    1. Copy this file to /blog/<slug>/index.html
+    2. Replace every {{PLACEHOLDER}} below.
+    3. Prepend an entry to /data/posts.js (newest first). The href is relative to
+       the blog listing, so it is just "<slug>/index.html":
+         { title: '{{TITLE}}', href: '{{SLUG}}/index.html',
+           meta: '{{DATE}} · {{READ_TIME}}', tagline: '{{EXCERPT}}', foot: 'Read →' }
+  That's it — the Blog listing picks it up automatically.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{TITLE}} — İlter Kavlak</title>
+  <meta name="description" content="{{EXCERPT}}" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d1117" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="{{TITLE}}" />
+  <meta property="og:description" content="{{EXCERPT}}" />
+  <meta property="og:url" content="https://ilterkavlak.github.io/blog/{{SLUG}}/" />
+  <link rel="canonical" href="https://ilterkavlak.github.io/blog/{{SLUG}}/" />
+  <link rel="stylesheet" href="../../assets/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="nav" aria-label="Primary">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../../index.html">İlter Kavlak<span>.</span></a>
+      <div class="nav-links">
+        <a href="../../index.html">Home</a>
+        <a href="../../projects/index.html">Projects</a>
+        <a href="../index.html" aria-current="page">Blog</a>
+        <a href="../../games/index.html">Games</a>
+        <a href="../../index.html#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+    <article class="wrap">
+      <header class="hero">
+        <p class="role">{{DATE}} · {{READ_TIME}}</p>
+        <h1>{{TITLE}}</h1>
+      </header>
+
+      <div class="prose section">
+        <!-- Write the post body here. Use <p>, <h2>, <ul>, <pre><code>, etc. -->
+        <p>{{FIRST_PARAGRAPH}}</p>
+      </div>
+
+      <a class="back-link" href="../index.html">← All posts</a>
+    </article>
+  </main>
+
+  <footer class="site-footer wrap">
+    <p>© <span data-year>2026</span> İlter Kavlak</p>
+  </footer>
+
+  <script src="../../assets/app.js"></script>
+</body>
+</html>

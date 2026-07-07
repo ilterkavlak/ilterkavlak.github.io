@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog — İlter Kavlak</title>
+  <meta name="description" content="Notes on infrastructure, reliability, and engineering by İlter Kavlak." />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d1117" />
+  <link rel="canonical" href="https://ilterkavlak.github.io/blog/" />
+  <link rel="stylesheet" href="../assets/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="nav" aria-label="Primary">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../index.html">İlter Kavlak<span>.</span></a>
+      <div class="nav-links">
+        <a href="../index.html">Home</a>
+        <a href="../projects/index.html">Projects</a>
+        <a href="index.html" aria-current="page">Blog</a>
+        <a href="../games/index.html">Games</a>
+        <a href="../index.html#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="wrap wrap-wide">
+    <header class="hero">
+      <p class="role">Blog</p>
+      <h1>Notes &amp; write-ups</h1>
+      <p class="tagline">Infrastructure, reliability, and the occasional rabbit hole.</p>
+    </header>
+
+    <div class="card-grid" id="cards"></div>
+
+    <a class="back-link" href="../index.html">← Back home</a>
+  </main>
+
+  <footer class="site-footer wrap wrap-wide">
+    <p>© <span data-year>2026</span> İlter Kavlak</p>
+  </footer>
+
+  <script src="../assets/app.js"></script>
+  <script src="../data/posts.js"></script>
+  <script>
+    renderCards('cards', window.POSTS, {
+      emoji: '🚧',
+      title: 'Under construction',
+      body: 'No posts yet — the first write-up is on its way.'
+    });
+  </script>
+</body>
+</html>

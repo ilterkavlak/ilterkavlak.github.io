@@ -1,0 +1,445 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ============================================================
+   İlter Kavlak — shared stylesheet
+   One file drives every page. Light theme by default,
+   dark theme applied automatically from the OS setting.
+   Fonts (Google Fonts) are @imported above, so pages only need to
+   link this one stylesheet: Space Grotesk + Manrope + JetBrains Mono.
+   ============================================================ */
+
+/* --- Design tokens: light (default) ------------------------ */
+:root {
+  --bg:            #ffffff;
+  --bg-subtle:     #f6f7f9;
+  --surface:       #ffffff;
+  --border:        #e6e8ec;
+  --border-strong: #d4d8de;
+
+  --text:          #374151;  /* body */
+  --text-muted:    #6b7280;  /* secondary / meta */
+  --heading:       #0b1220;  /* headings, strong */
+
+  --accent:        #0f766e;  /* teal-700, AA on white */
+  --accent-hover:  #0b5a54;
+  --accent-soft:   rgba(15, 118, 110, 0.10);
+  --accent-glow:   rgba(15, 118, 110, 0.28);
+  --on-accent:     #ffffff;   /* text on accent-filled buttons */
+
+  /* Soft page-background mesh (two subtle hues) */
+  --glow-1:        rgba(15, 118, 110, 0.08);
+  --glow-2:        rgba(124, 110, 240, 0.06);
+
+  --shadow:        0 1px 2px rgba(15, 23, 42, 0.04),
+                   0 8px 24px -16px rgba(15, 23, 42, 0.18);
+
+  --font-display: 'Space Grotesk', 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+
+  --maxw: 820px;         /* readable text column */
+  --maxw-wide: 1140px;   /* card grids / wide layouts */
+  --radius: 12px;
+  --pad-x: clamp(1.1rem, 4vw, 2rem);
+}
+
+/* --- Design tokens: dark (OS preference) -------------------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:            #0d1117;
+    --bg-subtle:     #10151d;
+    --surface:       #161b22;
+    --border:        #262c36;
+    --border-strong: #333b47;
+
+    --text:          #c9d1d9;
+    --text-muted:    #8b949e;
+    --heading:       #f0f3f6;
+
+    --accent:        #2dd4bf;  /* lighter teal, AA on dark */
+    --accent-hover:  #5eead4;
+    --accent-soft:   rgba(45, 212, 191, 0.13);
+    --accent-glow:   rgba(45, 212, 191, 0.30);
+    --on-accent:     #062521;   /* dark text reads better on light teal */
+
+    --glow-1:        rgba(45, 212, 191, 0.10);
+    --glow-2:        rgba(129, 140, 248, 0.09);
+
+    --shadow:        0 1px 2px rgba(0, 0, 0, 0.4),
+                     0 8px 24px -16px rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* --- Reset / base ------------------------------------------ */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Fixed, ultra-subtle two-tone glow that gives the page depth without
+   any images or extra markup. Sits behind all content. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(55rem 38rem at 12% -8%, var(--glow-1), transparent 60%),
+    radial-gradient(48rem 40rem at 105% 4%, var(--glow-2), transparent 55%);
+}
+
+h1, h2, h3, h4 { color: var(--heading); line-height: 1.22; font-weight: 700; font-family: var(--font-display); letter-spacing: -0.015em; }
+h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); letter-spacing: -0.02em; }
+h2 { font-size: 1.4rem; letter-spacing: -0.01em; }
+h3 { font-size: 1.1rem; }
+
+p { margin: 0 0 1rem; }
+strong { color: var(--heading); font-weight: 600; }
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+a:hover { color: var(--accent-hover); }
+
+ul { list-style: none; }
+
+code, pre { font-family: var(--font-mono); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+::selection { background: var(--accent-soft); color: var(--heading); }
+
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--accent);
+  color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0 0 8px 0;
+  z-index: 100;
+}
+.skip-link:focus { left: 0; color: #fff; }
+
+/* --- Layout helpers ---------------------------------------- */
+.wrap {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--pad-x);
+}
+.wrap-wide { max-width: var(--maxw-wide); }
+
+.section { margin-top: 3.5rem; }
+.section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.25rem;
+}
+.section-title::before {
+  content: "";
+  width: 1.8rem;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+
+.muted { color: var(--text-muted); }
+.lede { font-size: 1.08rem; color: var(--text-muted); }
+
+/* --- Top navigation ---------------------------------------- */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(1.4) blur(8px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner {
+  max-width: var(--maxw-wide);
+  margin-inline: auto;
+  padding: 0.85rem var(--pad-x);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.nav-brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--heading);
+  font-size: 1.02rem;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+.nav-brand span { color: var(--accent); }
+.nav-links {
+  display: flex;
+  gap: 1.25rem;
+  font-size: 0.92rem;
+  flex-wrap: wrap;
+}
+.nav-links a { color: var(--text-muted); font-weight: 500; }
+.nav-links a:hover,
+.nav-links a[aria-current="page"] { color: var(--heading); }
+
+/* On phones, stack the links under the brand and let them wrap neatly. */
+@media (max-width: 560px) {
+  .nav-inner { flex-wrap: wrap; gap: 0.55rem 1rem; padding-block: 0.7rem; }
+  .nav-links { width: 100%; gap: 0.65rem 1rem; font-size: 0.88rem; }
+}
+
+/* --- Hero (home) ------------------------------------------- */
+.hero { padding-top: 3.5rem; }
+.hero h1 { font-size: clamp(2.3rem, 6vw, 3.5rem); }
+/* Subtle heading→accent gradient, only where background-clip is supported. */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .hero h1 {
+    background: linear-gradient(118deg, var(--heading) 38%, var(--accent) 125%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+.hero .role {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--accent);
+  margin-bottom: 0.6rem;
+}
+.hero .tagline {
+  font-size: 1.15rem;
+  color: var(--text-muted);
+  max-width: 34rem;
+  margin-top: 0.75rem;
+}
+
+/* Contact row — prominent, top of home */
+.contact-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.6rem;
+}
+.contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.95rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 100px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+.contact-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.contact-btn.primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  border-color: transparent;
+  color: var(--on-accent);
+  box-shadow: 0 8px 20px -10px var(--accent-glow);
+}
+.contact-btn.primary:hover {
+  color: var(--on-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px -10px var(--accent-glow);
+  filter: brightness(1.04);
+}
+.contact-btn svg { width: 17px; height: 17px; }
+
+/* --- Prose blocks ------------------------------------------ */
+.prose p { margin-bottom: 1rem; }
+.prose a { text-decoration: underline; text-underline-offset: 2px; }
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+/* --- Experience -------------------------------------------- */
+.exp-item {
+  display: grid;
+  grid-template-columns: 8.5rem 1fr;
+  gap: 0.5rem 1.5rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--border);
+}
+.exp-item:first-child { border-top: none; }
+.exp-date {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  padding-top: 0.2rem;
+}
+.exp-role { font-weight: 600; color: var(--heading); }
+.exp-role .company { color: var(--accent); }
+.exp-sub { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; }
+.exp-desc ul { margin: 0.4rem 0 0; padding: 0; }
+.exp-desc li {
+  position: relative;
+  padding-left: 1.1rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.95rem;
+}
+.exp-desc li::before {
+  content: "–";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+@media (max-width: 560px) {
+  .exp-item { grid-template-columns: 1fr; gap: 0.35rem; }
+}
+
+/* --- Card grid (projects / posts / games) ------------------ */
+.card-grid {
+  display: grid;
+  /* min(280px, 100%) keeps a single card from overflowing very narrow phones */
+  grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: var(--text);           /* whole card is an <a>; keep body-text colour */
+  transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+/* Gradient accent bar that draws in from the left on hover */
+.card::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.28s ease;
+}
+.card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px -14px var(--accent-glow);
+}
+.card:hover::after { transform: scaleX(1); }
+.card:hover h3 { color: var(--accent); }
+.card h3 { margin-bottom: 0.3rem; color: var(--heading); }
+.card .card-meta {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+}
+.card p { font-size: 0.93rem; color: var(--text-muted); margin-bottom: 1rem; }
+.card .card-foot {
+  margin-top: auto;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+  transition: transform 0.18s ease;
+}
+.card:hover .card-foot { transform: translateX(4px); }
+
+/* Empty state (e.g. no blog posts yet) */
+.empty {
+  margin-top: 2rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+}
+.empty .empty-emoji { font-size: 2rem; display: block; margin-bottom: 0.75rem; }
+.empty strong { display: block; color: var(--heading); margin-bottom: 0.3rem; }
+
+/* --- Footer ------------------------------------------------ */
+.site-footer {
+  margin-top: 4.5rem;
+  padding: 2rem 0 3rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+.site-footer .socials {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+.site-footer .socials a { color: var(--text-muted); }
+.site-footer .socials a:hover { color: var(--accent); }
+.site-footer .socials svg { width: 20px; height: 20px; display: block; }
+
+/* --- Back link (sub-pages) --------------------------------- */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin-top: 2rem;
+}
+.back-link:hover { color: var(--accent); }
+
+/* --- Scroll reveal ----------------------------------------- */
+/* .reveal-init is added by JS only; if JS is off nothing is hidden. */
+.reveal-init { opacity: 0; transform: translateY(16px); }
+.reveal-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+  .reveal-init { opacity: 1 !important; transform: none !important; }
+}

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<!--
+  PROJECT TEMPLATE
+  ================
+  To add a project:
+    1. Copy this file to /projects/<slug>/index.html
+    2. Replace every {{PLACEHOLDER}} below and flesh out the sections.
+    3. Prepend an entry to /data/projects.js (newest first). The href is relative to
+       the projects listing, so it is just "<slug>/index.html":
+         { title: '{{TITLE}}', href: '{{SLUG}}/index.html',
+           meta: '{{YEAR}} · {{STATUS}} · {{STACK}}',
+           tagline: '{{TAGLINE}}', foot: 'Landing page →' }
+  The Projects listing picks it up automatically.
+  For a richer page, see /projects/nitpick/index.html as a worked example.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{TITLE}} — İlter Kavlak</title>
+  <meta name="description" content="{{TAGLINE}}" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d1117" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="{{TITLE}}" />
+  <meta property="og:description" content="{{TAGLINE}}" />
+  <meta property="og:url" content="https://ilterkavlak.github.io/projects/{{SLUG}}/" />
+  <link rel="canonical" href="https://ilterkavlak.github.io/projects/{{SLUG}}/" />
+  <link rel="stylesheet" href="../../assets/styles.css" />
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="nav" aria-label="Primary">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../../index.html">İlter Kavlak<span>.</span></a>
+      <div class="nav-links">
+        <a href="../../index.html">Home</a>
+        <a href="../index.html" aria-current="page">Projects</a>
+        <a href="../../blog/index.html">Blog</a>
+        <a href="../../games/index.html">Games</a>
+        <a href="../../index.html#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="wrap wrap-wide">
+    <header class="hero">
+      <p class="role">{{YEAR}} · {{STATUS}}</p>
+      <h1>{{TITLE}}</h1>
+      <p class="tagline">{{TAGLINE}}</p>
+      <div class="contact-row">
+        <a class="contact-btn primary" href="{{REPO_URL}}" target="_blank" rel="noopener">View on GitHub</a>
+      </div>
+      <div class="tag-list">
+        <span class="tag">{{TECH_1}}</span>
+        <span class="tag">{{TECH_2}}</span>
+      </div>
+    </header>
+
+    <section class="section prose">
+      <h2 class="section-title">Overview</h2>
+      <p>{{WHAT_IT_IS}}</p>
+    </section>
+
+    <a class="back-link" href="../index.html">← All projects</a>
+  </main>
+
+  <footer class="site-footer wrap wrap-wide">
+    <p>© <span data-year>2026</span> İlter Kavlak</p>
+  </footer>
+
+  <script src="../../assets/app.js"></script>
+</body>
+</html>

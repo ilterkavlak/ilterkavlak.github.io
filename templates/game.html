@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<!--
+  GAME TEMPLATE
+  =============
+  To add a game:
+    1. Copy this file to /games/<slug>/index.html
+    2. Replace every {{PLACEHOLDER}} and build the game inside the <script> block.
+       Keep it self-contained (no external libraries) to match the rest of the site.
+    3. Prepend an entry to /data/games.js (newest first). The href is relative to
+       the games listing, so it is just "<slug>/index.html":
+         { title: '{{TITLE}}', href: '{{SLUG}}/index.html',
+           meta: '{{META}}', tagline: '{{TAGLINE}}', foot: 'Play →' }
+  The Games listing picks it up automatically.
+  For a worked example, see /games/splash/index.html.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{TITLE}} — a game by İlter Kavlak</title>
+  <meta name="description" content="{{TAGLINE}}" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d1117" />
+  <link rel="canonical" href="https://ilterkavlak.github.io/games/{{SLUG}}/" />
+  <link rel="stylesheet" href="../../assets/styles.css" />
+  <style>
+    /* {{TITLE}} — page-specific game styles go here */
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="nav" aria-label="Primary">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../../index.html">İlter Kavlak<span>.</span></a>
+      <div class="nav-links">
+        <a href="../../index.html">Home</a>
+        <a href="../../projects/index.html">Projects</a>
+        <a href="../../blog/index.html">Blog</a>
+        <a href="../index.html" aria-current="page">Games</a>
+        <a href="../../index.html#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="wrap wrap-wide">
+    <header class="hero">
+      <p class="role">Games / {{TITLE}}</p>
+      <h1>{{TITLE}}</h1>
+      <p class="tagline">{{TAGLINE}}</p>
+    </header>
+
+    <!-- Game mounts here -->
+    <div id="game" class="section"></div>
+
+    <a class="back-link" href="../index.html">← All games</a>
+  </main>
+
+  <footer class="site-footer wrap wrap-wide">
+    <p>© <span data-year>2026</span> İlter Kavlak</p>
+  </footer>
+
+  <script src="../../assets/app.js"></script>
+  <script>
+  (function () {
+    'use strict';
+    // Build the game here. Keep it dependency-free.
+  })();
+  </script>
+</body>
+</html>

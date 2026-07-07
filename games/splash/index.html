@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Splash — a game by İlter Kavlak</title>
+  <meta name="description" content="Press any key or tap the board for a burst of colour and a friendly note. A tiny browser toy." />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d1117" />
+  <link rel="canonical" href="https://ilterkavlak.github.io/games/splash/" />
+  <link rel="stylesheet" href="../../assets/styles.css" />
+  <style>
+    /* Splash — page-specific styles (self-contained board) */
+    .splash-wrap { display: flex; flex-direction: column; gap: 0.75rem; user-select: none; -webkit-user-select: none; margin-top: 1.5rem; }
+    .splash-hint {
+      display: flex; align-items: center; justify-content: center; gap: 0.75rem;
+      flex-wrap: wrap; color: var(--text-muted); font-size: 0.95rem; font-weight: 500;
+    }
+    .splash-hint kbd {
+      display: inline-block; padding: 2px 8px; border: 1px solid var(--border-strong);
+      border-bottom-width: 2px; border-radius: 5px; font-family: var(--font-mono);
+      font-size: 0.8em; background: var(--surface); color: var(--text);
+    }
+    .splash-mute {
+      display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.8rem;
+      font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.05em;
+      text-transform: uppercase; color: var(--text); background: var(--surface);
+      border: 1px solid var(--border-strong); border-radius: 100px; cursor: pointer;
+      transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+    .splash-mute:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+    .splash-mute.is-off { color: var(--text-muted); }
+    .splash-board {
+      position: relative; width: 100%; height: min(70vh, 620px); min-height: 340px;
+      border-radius: 20px; overflow: hidden; touch-action: none;
+      -webkit-tap-highlight-color: transparent; cursor: crosshair;
+      background:
+        radial-gradient(ellipse 60% 40% at 18% 20%, rgba(255, 207, 138, 0.55), transparent 60%),
+        radial-gradient(ellipse 50% 40% at 82% 22%, rgba(186, 230, 253, 0.55), transparent 60%),
+        radial-gradient(ellipse 55% 45% at 20% 85%, rgba(221, 214, 254, 0.55), transparent 60%),
+        radial-gradient(ellipse 55% 45% at 82% 85%, rgba(252, 214, 227, 0.55), transparent 60%),
+        radial-gradient(ellipse 70% 55% at 50% 50%, rgba(255, 255, 255, 0.6), transparent 70%),
+        linear-gradient(135deg, #fff7ed 0%, #fef3f2 50%, #f0f9ff 100%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 20px 50px -25px rgba(15, 23, 42, 0.25);
+      isolation: isolate;
+    }
+    .splash-welcome {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; color: #334155; font-size: 1rem;
+      font-weight: 500; pointer-events: none; padding: 0 1.5rem; text-align: center;
+    }
+    .splash-welcome .emoji { font-size: clamp(2.5rem, 8vw, 4rem); margin-bottom: 0.75rem; animation: splashFloat 2s ease-in-out infinite; }
+    @keyframes splashFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .splash-tip { text-align: center; color: var(--text-muted); font-size: 0.75rem; font-family: var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; }
+    .splash-shape {
+      position: absolute; pointer-events: none; will-change: transform, opacity;
+      transform: translate(-50%, -50%) scale(0);
+      animation: shapeLife 2.4s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+    }
+    .splash-shape svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 8px 12px rgba(15, 23, 42, 0.22)); }
+    .splash-shape text { font-family: var(--font-sans); font-weight: 800; paint-order: stroke; stroke: rgba(15, 23, 42, 0.35); stroke-width: 3px; fill: #ffffff; }
+    @keyframes shapeLife {
+      0%   { opacity: 0; transform: translate(-50%, -50%) scale(0)    rotate(0); }
+      12%  { opacity: 1; transform: translate(-50%, -50%) scale(1.2)  rotate(calc(var(--rot) * 0.6)); }
+      22%  { opacity: 1; transform: translate(-50%, -50%) scale(0.92) rotate(var(--rot)); }
+      35%  { opacity: 1; transform: translate(-50%, -50%) scale(1)    rotate(var(--rot)); }
+      75%  { opacity: 1; transform: translate(-50%, -50%) scale(1)    rotate(calc(var(--rot) + 8deg)); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.8)  rotate(calc(var(--rot) + 35deg)); }
+    }
+    .splash-particle {
+      position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%;
+      pointer-events: none; will-change: transform, opacity;
+      animation: particleFly 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) forwards; box-shadow: 0 0 8px 1px currentColor;
+    }
+    @keyframes particleFly {
+      0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) scale(0.25); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .splash-welcome .emoji { animation: none; }
+      .splash-shape { animation-duration: 1s; }
+      .splash-particle { animation-duration: 0.4s; }
+    }
+    @media (max-width: 480px) { .splash-board { height: min(68vh, 520px); border-radius: 16px; } }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="nav" aria-label="Primary">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../../index.html">İlter Kavlak<span>.</span></a>
+      <div class="nav-links">
+        <a href="../../index.html">Home</a>
+        <a href="../../projects/index.html">Projects</a>
+        <a href="../../blog/index.html">Blog</a>
+        <a href="../index.html" aria-current="page">Games</a>
+        <a href="../../index.html#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="wrap wrap-wide">
+    <header class="hero">
+      <p class="role">Games / Splash</p>
+      <h1>Splash</h1>
+      <p class="tagline">Press any key or tap the board for a burst of colour and a friendly note. That's the whole game — a tiny stress-reliever.</p>
+    </header>
+
+    <div class="splash-wrap">
+      <div class="splash-hint">
+        Press any <kbd>key</kbd> · tap the board
+        <button class="splash-mute" data-mute type="button" aria-pressed="false">
+          <span data-mute-icon aria-hidden="true">🔊</span> <span data-mute-label>Sound on</span>
+        </button>
+      </div>
+      <div class="splash-board" id="splashBoard" aria-live="polite">
+        <div class="splash-welcome" data-welcome>
+          <span class="emoji" aria-hidden="true">🎹</span>
+          Tap the board or press a key
+        </div>
+      </div>
+      <div class="splash-tip">Works with keyboard, touch and mouse</div>
+    </div>
+
+    <a class="back-link" href="../index.html">← All games</a>
+  </main>
+
+  <footer class="site-footer wrap wrap-wide">
+    <p>© <span data-year>2026</span> İlter Kavlak</p>
+  </footer>
+
+  <script src="../../assets/app.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    var COLORS = ['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#B983FF','#FF9F45','#FF66C4','#00D9C0','#F472B6','#34D399'];
+    var SHAPES = ['circle','star','heart','square','triangle','hexagon','diamond','flower'];
+    // C major pentatonic across three octaves — any sequence sounds musical.
+    var NOTES = [261.63,293.66,329.63,392.00,440.00,523.25,587.33,659.25,783.99,880.00,1046.50,1174.66,1318.51,1567.98,1760.00];
+
+    var board    = document.getElementById('splashBoard');
+    var welcome  = document.querySelector('[data-welcome]');
+    var muteBtn  = document.querySelector('[data-mute]');
+    var muteIcon = document.querySelector('[data-mute-icon]');
+    var muteLbl  = document.querySelector('[data-mute-label]');
+
+    var audioCtx = null;
+    var muted = false;
+    var lastNoteIndex = -1;
+
+    function ensureAudio() {
+      if (!audioCtx) {
+        try {
+          var AC = window.AudioContext || window.webkitAudioContext;
+          if (!AC) return null;
+          audioCtx = new AC();
+        } catch (_) { return null; }
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume().catch(function () {});
+      return audioCtx;
+    }
+
+    function playNote(freq, duration) {
+      duration = duration || 0.6;
+      if (muted) return;
+      var ctx = ensureAudio();
+      if (!ctx) return;
+      var now = ctx.currentTime;
+      var osc1 = ctx.createOscillator(), osc2 = ctx.createOscillator();
+      var gain = ctx.createGain(), gain2 = ctx.createGain();
+      osc1.type = 'triangle'; osc1.frequency.value = freq;
+      osc2.type = 'sine'; osc2.frequency.value = freq * 2;
+      osc1.connect(gain); osc2.connect(gain2);
+      gain.connect(ctx.destination); gain2.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.25, now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      gain2.gain.setValueAtTime(0.0001, now);
+      gain2.gain.exponentialRampToValueAtTime(0.08, now + 0.02);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, now + duration * 0.6);
+      osc1.start(now); osc2.start(now);
+      osc1.stop(now + duration); osc2.stop(now + duration * 0.6);
+    }
+
+    function hash(str) {
+      var h = 0;
+      for (var i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0;
+      return Math.abs(h);
+    }
+    function pickFrom(arr, seed) {
+      if (seed == null || seed === '') return arr[Math.floor(Math.random() * arr.length)];
+      return arr[hash(String(seed)) % arr.length];
+    }
+    function nextNote(seed) {
+      var idx;
+      if (seed == null || seed === '') {
+        do { idx = Math.floor(Math.random() * NOTES.length); } while (idx === lastNoteIndex && NOTES.length > 1);
+      } else {
+        idx = hash(String(seed)) % NOTES.length;
+      }
+      lastNoteIndex = idx;
+      return NOTES[idx];
+    }
+
+    function shapeSvg(shape, color, label) {
+      var stroke = 'rgba(255,255,255,0.95)';
+      var inner;
+      switch (shape) {
+        case 'circle':   inner = '<circle cx="50" cy="50" r="42" fill="' + color + '" stroke="' + stroke + '" stroke-width="4"/>'; break;
+        case 'star':     inner = '<polygon points="50,5 61,35 94,36 67,57 77,90 50,72 23,90 33,57 6,36 39,35" fill="' + color + '" stroke="' + stroke + '" stroke-width="3" stroke-linejoin="round"/>'; break;
+        case 'heart':    inner = '<path d="M50 86 C20 60 10 35 28 20 C40 13 50 25 50 35 C50 25 60 13 72 20 C90 35 80 60 50 86 Z" fill="' + color + '" stroke="' + stroke + '" stroke-width="3" stroke-linejoin="round"/>'; break;
+        case 'square':   inner = '<rect x="10" y="10" width="80" height="80" rx="14" fill="' + color + '" stroke="' + stroke + '" stroke-width="4"/>'; break;
+        case 'triangle': inner = '<polygon points="50,8 92,84 8,84" fill="' + color + '" stroke="' + stroke + '" stroke-width="4" stroke-linejoin="round"/>'; break;
+        case 'hexagon':  inner = '<polygon points="50,5 90,27 90,73 50,95 10,73 10,27" fill="' + color + '" stroke="' + stroke + '" stroke-width="4" stroke-linejoin="round"/>'; break;
+        case 'diamond':  inner = '<polygon points="50,5 92,50 50,95 8,50" fill="' + color + '" stroke="' + stroke + '" stroke-width="4" stroke-linejoin="round"/>'; break;
+        case 'flower':
+          inner = '<circle cx="50" cy="22" r="18" fill="' + color + '" stroke="' + stroke + '" stroke-width="3"/>' +
+                  '<circle cx="78" cy="40" r="18" fill="' + color + '" stroke="' + stroke + '" stroke-width="3"/>' +
+                  '<circle cx="68" cy="78" r="18" fill="' + color + '" stroke="' + stroke + '" stroke-width="3"/>' +
+                  '<circle cx="32" cy="78" r="18" fill="' + color + '" stroke="' + stroke + '" stroke-width="3"/>' +
+                  '<circle cx="22" cy="40" r="18" fill="' + color + '" stroke="' + stroke + '" stroke-width="3"/>' +
+                  '<circle cx="50" cy="50" r="14" fill="#FFFACD" stroke="' + stroke + '" stroke-width="2"/>';
+          break;
+        default: inner = '<circle cx="50" cy="50" r="42" fill="' + color + '"/>';
+      }
+      var text = label
+        ? '<text x="50" y="' + (shape === 'triangle' ? 70 : 62) + '" text-anchor="middle" font-size="' + (label.length > 1 ? 26 : 40) + '">' + label + '</text>'
+        : '';
+      return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' + inner + text + '</svg>';
+    }
+
+    function spawnParticles(x, y, color) {
+      var count = 7;
+      for (var i = 0; i < count; i++) {
+        var angle = (i / count) * Math.PI * 2 + Math.random() * 0.6;
+        var dist = 45 + Math.random() * 35;
+        var p = document.createElement('div');
+        p.className = 'splash-particle';
+        p.style.left = x + 'px';
+        p.style.top = y + 'px';
+        p.style.background = color;
+        p.style.color = color;
+        p.style.setProperty('--dx', (Math.cos(angle) * dist) + 'px');
+        p.style.setProperty('--dy', (Math.sin(angle) * dist) + 'px');
+        board.appendChild(p);
+        (function (node) { setTimeout(function () { node.remove(); }, 900); })(p);
+      }
+    }
+
+    function spawn(seed, label, clientX, clientY) {
+      if (welcome) welcome.style.display = 'none';
+      var color = pickFrom(COLORS, seed);
+      var shape = pickFrom(SHAPES, seed);
+      var rect = board.getBoundingClientRect();
+      var x, y;
+      if (clientX != null && clientY != null) {
+        x = clientX - rect.left; y = clientY - rect.top;
+      } else {
+        var pad = 80;
+        x = pad + Math.random() * Math.max(1, rect.width - 2 * pad);
+        y = pad + Math.random() * Math.max(1, rect.height - 2 * pad);
+      }
+      var size = 130 + Math.random() * 70;
+      var rot = (Math.random() * 40 - 20).toFixed(1) + 'deg';
+      var el = document.createElement('div');
+      el.className = 'splash-shape';
+      el.style.left = x + 'px'; el.style.top = y + 'px';
+      el.style.width = size + 'px'; el.style.height = size + 'px';
+      el.style.setProperty('--rot', rot);
+      el.innerHTML = shapeSvg(shape, color, label);
+      board.appendChild(el);
+      (function (node) { setTimeout(function () { node.remove(); }, 2500); })(el);
+      spawnParticles(x, y, color);
+      playNote(nextNote(seed));
+    }
+
+    var IGNORE_KEYS = { Shift:1, Control:1, Alt:1, Meta:1, CapsLock:1, NumLock:1, ScrollLock:1, Tab:1, Escape:1, ContextMenu:1, Dead:1, Unidentified:1 };
+
+    function keyToLabel(k) {
+      if (k === ' ' || k === 'Spacebar') return '␣';
+      if (k.length === 1) return k.toUpperCase();
+      var map = { Enter:'↵', Backspace:'⌫', Delete:'✕', ArrowUp:'↑', ArrowDown:'↓', ArrowLeft:'←', ArrowRight:'→', Home:'⇱', End:'⇲', PageUp:'⇞', PageDown:'⇟' };
+      if (map[k]) return map[k];
+      if (/^F\d{1,2}$/.test(k)) return k;
+      return k.substring(0, 2).toUpperCase();
+    }
+
+    function onKeyDown(e) {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      var t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      if (IGNORE_KEYS[e.key]) return;
+      if (e.repeat) return;
+      e.preventDefault();
+      spawn(e.key, keyToLabel(e.key), null, null);
+    }
+    function onPointerDown(e) {
+      e.preventDefault();
+      try { board.setPointerCapture(e.pointerId); } catch (_) {}
+      spawn(null, '', e.clientX, e.clientY);
+    }
+    function onMute() {
+      muted = !muted;
+      muteBtn.classList.toggle('is-off', muted);
+      muteBtn.setAttribute('aria-pressed', String(muted));
+      muteIcon.textContent = muted ? '🔇' : '🔊';
+      muteLbl.textContent = muted ? 'Sound off' : 'Sound on';
+      if (muted && audioCtx) { try { audioCtx.suspend(); } catch (_) {} }
+    }
+
+    document.addEventListener('keydown', onKeyDown);
+    board.addEventListener('pointerdown', onPointerDown);
+    board.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    muteBtn.addEventListener('click', onMute);
+  })();
+  </script>
+</body>
+</html>
