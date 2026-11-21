@@ -8,7 +8,7 @@ window.PROJECTS = [
     title: 'blobshelf',
     href: 'blobshelf/index.html',
     meta: '2026 · Active · Swift · macOS',
-    tagline: 'Your Upstash Blob buckets as a drive on your Mac, with automatic folder backups. Native, sandboxed, zero dependencies.',
+    tagline: 'A native Mac app for your Upstash Blob buckets, with automatic folder backups. Sandboxed, zero dependencies.',
     foot: 'Landing page →',
     icon: '🗄️',
     accent: '#3b82f6'
