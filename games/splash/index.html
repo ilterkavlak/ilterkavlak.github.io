@@ -2,319 +2,513 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Splash — a game by İlter Kavlak</title>
-  <meta name="description" content="Press any key or tap the board for a burst of colour and a friendly note. A tiny browser toy." />
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d1117" />
+  <meta name="description" content="A calm toddler toy full of trucks, diggers, cranes, planes and a helicopter. Keys on the left move the left side, keys on the right move the right side — or play with the camera." />
+  <meta name="theme-color" content="#1D2B53" />
   <link rel="canonical" href="https://ilterkavlak.github.io/games/splash/" />
-  <link rel="stylesheet" href="../../assets/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" />
   <style>
-    /* Splash — page-specific styles (self-contained board) */
-    .splash-wrap { display: flex; flex-direction: column; gap: 0.75rem; user-select: none; -webkit-user-select: none; margin-top: 1.5rem; }
-    .splash-hint {
-      display: flex; align-items: center; justify-content: center; gap: 0.75rem;
-      flex-wrap: wrap; color: var(--text-muted); font-size: 0.95rem; font-weight: 500;
+    html, body { height: 100%; margin: 0; }
+    body {
+      background: #1D2B53;
+      color: #1D2B53;
+      font-family: 'Fredoka', system-ui, sans-serif;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
-    .splash-hint kbd {
-      display: inline-block; padding: 2px 8px; border: 1px solid var(--border-strong);
-      border-bottom-width: 2px; border-radius: 5px; font-family: var(--font-mono);
-      font-size: 0.8em; background: var(--surface); color: var(--text);
+    #scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+    .hit { fill: transparent; cursor: pointer; }
+    .glow { fill: #FFFFFF; opacity: 0; pointer-events: none; }
+
+    /* Parent bar: only after start, never in fullscreen. */
+    .bar {
+      position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 5;
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+      width: max-content; max-width: calc(100% - 24px); padding: 6px; border-radius: 26px;
+      background: rgba(29, 43, 83, 0.85); box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
     }
-    .splash-mute {
-      display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.8rem;
-      font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.05em;
-      text-transform: uppercase; color: var(--text); background: var(--surface);
-      border: 1px solid var(--border-strong); border-radius: 100px; cursor: pointer;
-      transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    .bar button, .bar a {
+      display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px;
+      font: inherit; font-size: 15px; font-weight: 500; color: #1D2B53; text-decoration: none;
+      background: #FFFFFF; border: 0; border-radius: 999px; cursor: pointer;
     }
-    .splash-mute:hover { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
-    .splash-mute.is-off { color: var(--text-muted); }
-    .splash-board {
-      position: relative; width: 100%; height: min(70vh, 620px); min-height: 340px;
-      border-radius: 20px; overflow: hidden; touch-action: none;
-      -webkit-tap-highlight-color: transparent; cursor: crosshair;
-      background:
-        radial-gradient(ellipse 60% 40% at 18% 20%, rgba(255, 207, 138, 0.55), transparent 60%),
-        radial-gradient(ellipse 50% 40% at 82% 22%, rgba(186, 230, 253, 0.55), transparent 60%),
-        radial-gradient(ellipse 55% 45% at 20% 85%, rgba(221, 214, 254, 0.55), transparent 60%),
-        radial-gradient(ellipse 55% 45% at 82% 85%, rgba(252, 214, 227, 0.55), transparent 60%),
-        radial-gradient(ellipse 70% 55% at 50% 50%, rgba(255, 255, 255, 0.6), transparent 70%),
-        linear-gradient(135deg, #fff7ed 0%, #fef3f2 50%, #f0f9ff 100%);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 20px 50px -25px rgba(15, 23, 42, 0.25);
-      isolation: isolate;
+    .bar button[aria-pressed="true"] { background: #FFC12E; }
+    .bar :focus-visible, .start :focus-visible { outline: 3px solid #FFC12E; outline-offset: 2px; }
+    body:not(.is-started) .bar, body.is-fs .bar { display: none; }
+    /* Phones: icons only, so the bar covers less of the sky (iPhone can't go fullscreen). */
+    @media (max-width: 760px), (max-height: 500px) {
+      .bar { top: 6px; gap: 4px; padding: 4px; }
+      .bar button, .bar a { padding: 6px 10px; font-size: 16px; }
+      .bar span { display: none; }
     }
-    .splash-welcome {
-      position: absolute; inset: 0; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; color: #334155; font-size: 1rem;
-      font-weight: 500; pointer-events: none; padding: 0 1.5rem; text-align: center;
+
+    /* Start screen */
+    .start {
+      position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 16px;
+      background: rgba(29, 43, 83, 0.55); overflow-y: auto;
     }
-    .splash-welcome .emoji { font-size: clamp(2.5rem, 8vw, 4rem); margin-bottom: 0.75rem; animation: splashFloat 2s ease-in-out infinite; }
-    @keyframes splashFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-    .splash-tip { text-align: center; color: var(--text-muted); font-size: 0.75rem; font-family: var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; }
-    .splash-shape {
-      position: absolute; pointer-events: none; will-change: transform, opacity;
-      transform: translate(-50%, -50%) scale(0);
-      animation: shapeLife 2.4s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+    body.is-started .start { display: none; }
+    .start-card {
+      max-width: 580px; padding: 26px clamp(18px, 5vw, 36px); text-align: center;
+      background: #FFF9EC; border: 4px solid #1D2B53; border-radius: 28px; box-shadow: 0 10px 0 #1D2B53;
     }
-    .splash-shape svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 8px 12px rgba(15, 23, 42, 0.22)); }
-    .splash-shape text { font-family: var(--font-sans); font-weight: 800; paint-order: stroke; stroke: rgba(15, 23, 42, 0.35); stroke-width: 3px; fill: #ffffff; }
-    @keyframes shapeLife {
-      0%   { opacity: 0; transform: translate(-50%, -50%) scale(0)    rotate(0); }
-      12%  { opacity: 1; transform: translate(-50%, -50%) scale(1.2)  rotate(calc(var(--rot) * 0.6)); }
-      22%  { opacity: 1; transform: translate(-50%, -50%) scale(0.92) rotate(var(--rot)); }
-      35%  { opacity: 1; transform: translate(-50%, -50%) scale(1)    rotate(var(--rot)); }
-      75%  { opacity: 1; transform: translate(-50%, -50%) scale(1)    rotate(calc(var(--rot) + 8deg)); }
-      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.8)  rotate(calc(var(--rot) + 35deg)); }
+    .start h1 {
+      margin: 0; font-size: clamp(44px, 10vw, 76px); font-weight: 700; line-height: 1; letter-spacing: 0.02em;
+      color: #FFC12E; -webkit-text-stroke: 7px #1D2B53; paint-order: stroke fill;
     }
-    .splash-particle {
-      position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%;
-      pointer-events: none; will-change: transform, opacity;
-      animation: particleFly 0.9s cubic-bezier(0.2, 0.7, 0.3, 1) forwards; box-shadow: 0 0 8px 1px currentColor;
+    .start .sub { margin: 10px 0 0; font-size: 20px; font-weight: 500; }
+    .modes { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin: 22px 0 18px; }
+    .mode {
+      display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px;
+      font: inherit; font-size: 22px; font-weight: 600; color: #1D2B53; cursor: pointer;
+      background: #FFC12E; border: 4px solid #1D2B53; border-radius: 20px; box-shadow: 0 6px 0 #1D2B53;
     }
-    @keyframes particleFly {
-      0%   { transform: translate(0, 0) scale(1); opacity: 1; }
-      100% { transform: translate(var(--dx), var(--dy)) scale(0.25); opacity: 0; }
+    .mode.cam { background: #8CD3F3; }
+    .mode:active { transform: translateY(4px); box-shadow: 0 2px 0 #1D2B53; }
+    .parents { margin: 0; font-size: 15px; line-height: 1.55; color: #3E4556; }
+    .parents + .parents { margin-top: 8px; }
+    kbd {
+      display: inline-block; padding: 0 7px; font: inherit; font-size: 14px; font-weight: 600;
+      background: #FFFFFF; border: 2px solid #1D2B53; border-bottom-width: 3px; border-radius: 7px;
     }
-    @media (prefers-reduced-motion: reduce) {
-      .splash-welcome .emoji { animation: none; }
-      .splash-shape { animation-duration: 1s; }
-      .splash-particle { animation-duration: 0.4s; }
+    .start a { color: #2F8FC9; font-weight: 500; }
+
+    #cam {
+      position: fixed; right: 14px; bottom: 14px; z-index: 4; width: 160px; height: 120px;
+      object-fit: cover; border: 3px solid #FFFFFF; border-radius: 14px;
+      transform: scaleX(-1); opacity: 0.6; pointer-events: none;
     }
-    @media (max-width: 480px) { .splash-board { height: min(68vh, 520px); border-radius: 16px; } }
+    #cam[hidden] { display: none; }
+    .toast {
+      position: fixed; left: 50%; bottom: 24px; z-index: 6; transform: translateX(-50%);
+      max-width: calc(100% - 32px); padding: 10px 16px; border-radius: 14px;
+      background: #FFFFFF; font-size: 17px; font-weight: 500; text-align: center;
+      opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+    }
+    .toast.show { opacity: 1; }
   </style>
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to content</a>
+  <svg id="scene" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid meet" role="img" aria-label="A seaside building site with a plane, a helicopter, a crane, a digger, trucks and cars">
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#8CD3F3"/>
+        <stop offset="0.36" stop-color="#A8DDF5"/>
+        <stop offset="0.5" stop-color="#B9C3EC"/>
+        <stop offset="0.62" stop-color="#6F78C0"/>
+        <stop offset="0.78" stop-color="#34407F"/>
+        <stop offset="1" stop-color="#1D2B53"/>
+      </linearGradient>
+      <linearGradient id="sea" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#3AA6DE"/>
+        <stop offset="0.55" stop-color="#2F8FC9"/>
+        <stop offset="1" stop-color="#24508C"/>
+      </linearGradient>
+      <pattern id="hazard" width="56" height="56" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="56" height="56" fill="#FFC12E"/>
+        <rect width="28" height="56" fill="#1D2B53"/>
+      </pattern>
+      <pattern id="dash" width="120" height="8" patternUnits="userSpaceOnUse">
+        <rect width="64" height="8" rx="4" fill="#F4F1EA"/>
+      </pattern>
+      <path id="star" d="M0 -10 L2.47 -3.4 L9.51 -3.09 L3.99 1.3 L5.88 8.09 L0 4.2 L-5.88 8.09 L-3.99 1.3 L-9.51 -3.09 L-2.47 -3.4 Z" fill="#FFE27A" stroke="#FFE27A" stroke-width="3" stroke-linejoin="round"/>
+      <g id="cloud">
+        <circle cx="40" cy="40" r="28"/><circle cx="80" cy="26" r="36"/><circle cx="124" cy="40" r="28"/><rect x="12" y="40" width="140" height="28" rx="14"/>
+      </g>
+      <g id="wheel">
+        <circle r="22" fill="#2A2F3A"/>
+        <circle r="9" fill="#C9CED8"/>
+      </g>
+      <clipPath id="drum-clip"><ellipse rx="92" ry="42"/></clipPath>
+      <!-- On screens that aren't 16:10 the scene is letterboxed; hide what's outside it. -->
+      <clipPath id="scene-clip"><rect width="1600" height="1000"/></clipPath>
+    </defs>
+    <g clip-path="url(#scene-clip)">
 
-  <nav class="nav" aria-label="Primary">
-    <div class="nav-inner">
-      <a class="nav-brand" href="../../index.html">İlter Kavlak<span>.</span></a>
-      <div class="nav-links">
-        <a href="../../index.html">Home</a>
-        <a href="../../projects/index.html">Projects</a>
-        <a href="../../blog/index.html">Blog</a>
-        <a href="../index.html" aria-current="page">Games</a>
-        <a href="../../index.html#contact">Contact</a>
-      </div>
-    </div>
-  </nav>
+    <!-- Backdrop: day on the left, night on the right -->
+    <g id="backdrop">
+      <rect x="0" y="0" width="1600" height="600" fill="url(#sky)"/>
+      <g>
+        <use href="#star" transform="translate(1250 80) scale(1.4)"/>
+        <use href="#star" transform="translate(1320 30) scale(0.9)"/>
+        <use href="#star" transform="translate(1560 290) scale(1.2)"/>
+        <use href="#star" transform="translate(1390 260) scale(0.8)"/>
+        <use href="#star" transform="translate(1570 470) scale(1)"/>
+        <use href="#star" transform="translate(1210 430) scale(0.9)"/>
+        <use href="#star" transform="translate(1410 470) scale(0.9)"/>
+        <use href="#star" transform="translate(1080 500) scale(0.7)"/>
+      </g>
+      <g fill="#FFF6D0">
+        <circle cx="1290" cy="170" r="3.5"/><circle cx="1440" cy="40" r="3"/><circle cx="1585" cy="200" r="3"/>
+        <circle cx="1500" cy="530" r="3"/><circle cx="1120" cy="440" r="3"/><circle cx="1350" cy="520" r="3"/>
+      </g>
+      <g transform="translate(130 110)">
+        <g stroke="#FFAA1F" stroke-width="14" stroke-linecap="round">
+          <line x1="0" y1="-98" x2="0" y2="-78"/>
+          <line x1="0" y1="-98" x2="0" y2="-78" transform="rotate(45)"/>
+          <line x1="0" y1="-98" x2="0" y2="-78" transform="rotate(90)"/>
+          <line x1="0" y1="-98" x2="0" y2="-78" transform="rotate(135)"/>
+          <line x1="0" y1="-98" x2="0" y2="-78" transform="rotate(180)"/>
+          <line x1="0" y1="-98" x2="0" y2="-78" transform="rotate(225)"/>
+          <line x1="0" y1="-98" x2="0" y2="-78" transform="rotate(270)"/>
+          <line x1="0" y1="-98" x2="0" y2="-78" transform="rotate(315)"/>
+        </g>
+        <circle r="62" fill="#FFC12E" stroke="#FFAA1F" stroke-width="6"/>
+        <circle r="44" fill="#FFD75E"/>
+      </g>
+      <g transform="translate(-250 -60)">
+        <circle cx="1720" cy="170" r="90" fill="#FFF0B8" opacity="0.12"/>
+        <path d="M1714.4 96.2 A74 74 0 1 0 1786.9 201.65 A64 64 0 0 1 1714.4 96.2 Z" fill="#FFF0B8"/>
+        <g fill="#F2DB8B"><circle cx="1676" cy="196" r="9"/><circle cx="1700" cy="224" r="6"/><circle cx="1668" cy="160" r="6"/></g>
+      </g>
+      <g fill="#FFFFFF" opacity="0.95">
+        <use href="#cloud" transform="translate(40 330) scale(0.9)"/>
+        <use href="#cloud" transform="translate(560 300) scale(0.7)"/>
+        <use href="#cloud" transform="translate(330 420) scale(0.55)"/>
+      </g>
 
-  <main id="main" class="wrap wrap-wide">
-    <header class="hero">
-      <p class="role">Games / Splash</p>
+      <rect x="0" y="560" width="1600" height="90" fill="url(#sea)"/>
+      <rect x="0" y="558" width="1600" height="5" fill="#D6F0FB" opacity="0.7"/>
+      <g fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" opacity="0.6">
+        <path d="M40 600 q12 -9 24 0 t24 0 t24 0"/>
+        <path d="M480 620 q12 -9 24 0 t24 0"/>
+        <path d="M900 600 q12 -9 24 0 t24 0 t24 0"/>
+        <path d="M1300 615 q12 -9 24 0 t24 0"/>
+      </g>
+      <g stroke="#1D2B53" stroke-width="3" stroke-linejoin="round">
+        <line x1="700" y1="512" x2="700" y2="590" stroke-width="4" stroke-linecap="round"/>
+        <path d="M705 518 L705 584 L742 584 Z" fill="#FFFFFF"/>
+        <path d="M695 530 L695 584 L666 584 Z" fill="#FFC12E"/>
+        <path d="M656 590 L744 590 L732 610 Q730 612 726 612 L674 612 Q670 612 668 610 Z" fill="#E8483B"/>
+      </g>
+
+      <rect x="0" y="650" width="800" height="140" fill="#EDB96E"/>
+      <path d="M0 650 L800 650" stroke="#C98B4F" stroke-width="4"/>
+      <rect x="800" y="650" width="800" height="140" fill="#C68A4C"/>
+      <path d="M800 650 L1600 650" stroke="#8E5A2B" stroke-width="4"/>
+      <g fill="#C98B4F"><circle cx="140" cy="690" r="5"/><circle cx="420" cy="676" r="3"/><circle cx="660" cy="700" r="4"/></g>
+      <g fill="#8E5A2B"><circle cx="880" cy="680" r="5"/><circle cx="1290" cy="700" r="4"/><circle cx="1540" cy="672" r="5"/></g>
+      <path d="M1220 790 C1240 740 1280 716 1330 714 C1380 716 1410 750 1424 790 Z" fill="#B9783F" stroke="#1D2B53" stroke-width="4" stroke-linejoin="round"/>
+      <g stroke="#1D2B53" stroke-width="3" stroke-linejoin="round">
+        <path d="M1168 782 L1173 736 Q1176 730 1179 736 L1184 782 Z" fill="#FF7B29"/>
+        <rect x="1158" y="780" width="36" height="9" rx="3" fill="#FF7B29"/>
+        <path d="M1448 782 L1453 736 Q1456 730 1459 736 L1464 782 Z" fill="#FF7B29"/>
+        <rect x="1438" y="780" width="36" height="9" rx="3" fill="#FF7B29"/>
+      </g>
+
+      <rect x="0" y="790" width="1600" height="12" fill="#C9CED8"/>
+      <rect x="0" y="802" width="1600" height="134" fill="#3E4556"/>
+      <rect x="0" y="866" width="1600" height="8" fill="url(#dash)"/>
+      <rect x="0" y="936" width="1600" height="10" fill="#C9CED8"/>
+      <rect x="0" y="944" width="1600" height="4" fill="#1D2B53"/>
+      <rect x="0" y="948" width="1600" height="52" fill="url(#hazard)"/>
+    </g>
+
+    <!-- Soft highlight of the zone that was just played -->
+    <g id="glows">
+      <rect class="glow" data-zone="L0" x="10" y="10" width="780" height="280" rx="40"/>
+      <rect class="glow" data-zone="R0" x="810" y="10" width="780" height="280" rx="40"/>
+      <rect class="glow" data-zone="L1" x="10" y="310" width="780" height="240" rx="40"/>
+      <rect class="glow" data-zone="R1" x="810" y="310" width="780" height="240" rx="40"/>
+      <rect class="glow" data-zone="L2" x="10" y="570" width="780" height="210" rx="40"/>
+      <rect class="glow" data-zone="R2" x="810" y="570" width="780" height="210" rx="40"/>
+      <rect class="glow" data-zone="L3" x="10" y="800" width="780" height="190" rx="40"/>
+      <rect class="glow" data-zone="R3" x="810" y="800" width="780" height="190" rx="40"/>
+    </g>
+
+    <!-- Vehicles. Every animated part pivots at its own (0,0), set by the wrapping translate. -->
+    <g id="vehicles" stroke="#1D2B53" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+
+      <!-- Crane (R1) -->
+      <g id="v-crane" transform="translate(1080 790)">
+        <rect x="380" y="-18" width="76" height="18" fill="#8A93A6"/>
+        <rect x="400" y="-470" width="36" height="452" fill="#FFC12E"/>
+        <polyline points="400,-30 436,-72 400,-114 436,-156 400,-198 436,-240 400,-282 436,-324 400,-366 436,-408 400,-450" fill="none" stroke-width="3"/>
+        <path d="M406 -490 L418 -540 L430 -490" fill="none" stroke-width="8"/>
+        <path d="M418 -540 L20 -492 M418 -540 L516 -492" fill="none" stroke-width="3"/>
+        <rect x="0" y="-492" width="520" height="16" rx="3" fill="#FFC12E"/>
+        <rect x="462" y="-476" width="54" height="44" rx="4" fill="#8A93A6"/>
+        <rect x="376" y="-470" width="56" height="44" rx="6" fill="#FFC12E"/>
+        <rect x="384" y="-462" width="36" height="24" rx="3" fill="#CDEEFF" stroke-width="3"/>
+        <g transform="translate(155 -476)">
+          <g data-part="trolley">
+            <rect x="-18" y="0" width="36" height="12" rx="3" fill="#3E4556"/>
+            <g transform="translate(0 12)">
+              <rect data-part="cable" x="-2" y="0" width="4" height="92" fill="#1D2B53" stroke="none"/>
+            </g>
+            <g data-part="hook">
+              <path d="M0 102 L0 112 Q0 122 -10 122" fill="none" stroke-width="5"/>
+              <rect x="-32" y="124" width="64" height="40" rx="4" fill="#2F8FC9"/>
+              <path d="M-32 144 L32 144" stroke-width="3"/>
+            </g>
+          </g>
+        </g>
+      </g>
+
+      <!-- Scissor lift (L1) -->
+      <g id="v-lift" transform="translate(80 790)">
+        <g transform="translate(0 -40)">
+          <g data-part="scissor">
+            <path d="M20 0 L160 -45 L20 -90 L160 -135 L20 -180 M160 0 L20 -45 L160 -90 L20 -135 L160 -180" fill="none" stroke-width="11" vector-effect="non-scaling-stroke"/>
+            <path d="M20 0 L160 -45 L20 -90 L160 -135 L20 -180 M160 0 L20 -45 L160 -90 L20 -135 L160 -180" fill="none" stroke="#FFC12E" stroke-width="5" vector-effect="non-scaling-stroke"/>
+          </g>
+        </g>
+        <g data-part="platform">
+          <path d="M2 -224 L2 -258 L178 -258 L178 -224 M2 -241 L178 -241 M60 -258 L60 -224 M120 -258 L120 -224" fill="none" stroke-width="4"/>
+          <rect x="-6" y="-226" width="192" height="24" rx="4" fill="#FF7B29"/>
+        </g>
+        <rect x="0" y="-46" width="180" height="32" rx="6" fill="#FFC12E"/>
+        <use href="#wheel" transform="translate(32 -14) scale(0.6)"/>
+        <use href="#wheel" transform="translate(148 -14) scale(0.6)"/>
+      </g>
+
+      <!-- Dump truck (L2) -->
+      <g id="v-dump" transform="translate(290 790)">
+        <rect x="0" y="-48" width="250" height="14" fill="#3E4556"/>
+        <path d="M180 -46 L180 -114 Q180 -122 188 -122 L224 -122 Q244 -120 248 -98 L252 -46 Z" fill="#FFC12E"/>
+        <path d="M192 -112 L222 -112 Q236 -110 238 -94 L238 -82 L192 -82 Z" fill="#CDEEFF" stroke-width="3"/>
+        <g transform="translate(2 -50)">
+          <g data-part="bed">
+            <g data-part="load" stroke-width="3">
+              <rect x="14" y="-88" width="40" height="28" rx="4" fill="#2F8FC9"/>
+              <rect x="60" y="-92" width="40" height="32" rx="4" fill="#1BB58C"/>
+              <rect x="106" y="-86" width="40" height="26" rx="4" fill="#E8483B"/>
+            </g>
+            <path d="M0 0 L168 0 L174 -66 L-6 -66 Z" fill="#FF7B29"/>
+            <path d="M42 -8 L42 -58 M86 -8 L86 -58 M130 -8 L130 -58" fill="none" stroke-width="3" opacity="0.35"/>
+          </g>
+        </g>
+        <use href="#wheel" transform="translate(40 -22) scale(0.9)"/>
+        <use href="#wheel" transform="translate(96 -22) scale(0.9)"/>
+        <use href="#wheel" transform="translate(214 -22) scale(0.9)"/>
+      </g>
+
+      <!-- Forklift (L2) -->
+      <g id="v-forklift" transform="translate(570 790)">
+        <rect x="10" y="-82" width="44" height="56" rx="10" fill="#F2A900"/>
+        <path d="M28 -30 L28 -78 L120 -78 L136 -30 Z" fill="#FFC12E"/>
+        <path d="M58 -78 L66 -150 L128 -150 L134 -78" fill="none" stroke-width="6"/>
+        <rect x="56" y="-160" width="84" height="12" rx="4" fill="#3E4556"/>
+        <rect x="72" y="-106" width="22" height="28" rx="4" fill="#3E4556"/>
+        <rect x="148" y="-178" width="12" height="158" fill="#8A93A6"/>
+        <g data-part="forks">
+          <rect x="160" y="-72" width="8" height="54" fill="#3E4556"/>
+          <rect x="160" y="-24" width="58" height="7" fill="#3E4556"/>
+          <rect x="164" y="-36" width="56" height="12" fill="#B9783F"/>
+          <rect x="168" y="-78" width="48" height="42" rx="4" fill="#2F8FC9"/>
+          <path d="M168 -58 L216 -58" stroke-width="3"/>
+        </g>
+        <use href="#wheel" transform="translate(48 -18) scale(0.75)"/>
+        <use href="#wheel" transform="translate(122 -18) scale(0.75)"/>
+      </g>
+
+      <!-- Excavator (R2) -->
+      <g id="v-excavator" transform="translate(940 790)">
+        <rect x="0" y="-42" width="230" height="40" rx="20" fill="#3E4556"/>
+        <g fill="#8A93A6" stroke-width="3">
+          <circle cx="24" cy="-22" r="11"/><circle cx="70" cy="-22" r="9"/><circle cx="115" cy="-22" r="9"/><circle cx="160" cy="-22" r="9"/><circle cx="206" cy="-22" r="11"/>
+        </g>
+        <rect x="30" y="-58" width="170" height="16" fill="#2A3550"/>
+        <rect x="40" y="-110" width="170" height="54" rx="12" fill="#FFC12E"/>
+        <rect x="130" y="-168" width="72" height="62" rx="10" fill="#FFC12E"/>
+        <rect x="142" y="-158" width="48" height="36" rx="6" fill="#CDEEFF" stroke-width="3"/>
+        <g transform="translate(70 -92)">
+          <g data-part="boom">
+            <path d="M0 0 Q-30 -110 -110 -130" fill="none" stroke-width="30"/>
+            <path d="M0 0 Q-30 -110 -110 -130" fill="none" stroke="#FFC12E" stroke-width="20"/>
+            <g transform="translate(-110 -130)">
+              <g data-part="stick">
+                <path d="M0 0 L-24 96" fill="none" stroke-width="24"/>
+                <path d="M0 0 L-24 96" fill="none" stroke="#FFC12E" stroke-width="14"/>
+                <g transform="translate(-24 96)">
+                  <g data-part="bucket">
+                    <path d="M8 -6 L-30 -2 L-28 30 Q-12 46 12 32 Z" fill="#FFC12E"/>
+                    <path d="M-28 30 L-36 40 M-16 38 L-22 50 M0 38 L-2 50" fill="none" stroke-width="4"/>
+                    <circle r="6" fill="#C9CED8" stroke-width="3"/>
+                  </g>
+                </g>
+                <circle r="7" fill="#C9CED8" stroke-width="3"/>
+              </g>
+            </g>
+            <circle r="8" fill="#C9CED8" stroke-width="3"/>
+          </g>
+        </g>
+      </g>
+
+      <!-- Far lane: motorcycle (L3), box truck (R3, facing left) -->
+      <g id="v-motorcycle" transform="translate(500 858)">
+        <g data-part="move">
+          <g transform="translate(-70 0)">
+            <use href="#wheel" transform="translate(22 -22) scale(0.9)"/>
+            <use href="#wheel" transform="translate(118 -22) scale(0.9)"/>
+            <path d="M22 -22 L52 -54 L98 -54 L118 -22" fill="none" stroke-width="6"/>
+            <path d="M44 -58 Q44 -76 64 -76 L90 -76 Q104 -76 104 -62 L104 -52 L44 -52 Z" fill="#1BB58C"/>
+            <rect x="26" y="-70" width="36" height="12" rx="6" fill="#3E4556"/>
+            <path d="M104 -62 L112 -88 M104 -90 L120 -90" fill="none" stroke-width="5"/>
+            <circle cx="116" cy="-70" r="6" fill="#FFE27A" stroke-width="2.5"/>
+          </g>
+        </g>
+      </g>
+      <g id="v-truck" transform="translate(1380 858) scale(-1 1)">
+        <g data-part="move">
+          <g transform="translate(-143 0)">
+            <rect x="0" y="-150" width="190" height="112" rx="8" fill="#2F8FC9"/>
+            <rect x="2" y="-76" width="186" height="10" fill="#FFF0B8" stroke="none"/>
+            <rect x="0" y="-48" width="284" height="14" fill="#3E4556"/>
+            <path d="M196 -46 L196 -114 Q196 -122 204 -122 L246 -122 Q268 -118 276 -94 L282 -46 Z" fill="#FFC12E"/>
+            <path d="M208 -112 L242 -112 Q258 -108 262 -92 L262 -84 L208 -84 Z" fill="#CDEEFF" stroke-width="3"/>
+            <circle cx="276" cy="-62" r="6" fill="#FFE27A" stroke-width="2.5"/>
+            <use href="#wheel" transform="translate(40 -22) scale(0.9)"/>
+            <use href="#wheel" transform="translate(98 -22) scale(0.9)"/>
+            <use href="#wheel" transform="translate(236 -22) scale(0.9)"/>
+          </g>
+        </g>
+      </g>
+
+      <!-- Near lane: car (L3), cement mixer (R3) -->
+      <g id="v-car" transform="translate(170 926)">
+        <g data-part="move">
+          <g transform="translate(-102 0)">
+            <path d="M6 -24 L6 -52 Q6 -62 18 -64 L52 -68 L80 -100 Q86 -106 96 -106 L142 -106 Q152 -106 158 -100 L186 -68 Q198 -64 198 -52 L198 -24 Z" fill="#E8483B"/>
+            <path d="M88 -74 L100 -96 L124 -96 L124 -74 Z" fill="#CDEEFF" stroke-width="3"/>
+            <path d="M132 -74 L132 -96 L146 -96 L168 -74 Z" fill="#CDEEFF" stroke-width="3"/>
+            <circle cx="191" cy="-48" r="6" fill="#FFE27A" stroke-width="2.5"/>
+            <use href="#wheel" transform="translate(52 -22) scale(0.9)"/>
+            <use href="#wheel" transform="translate(154 -22) scale(0.9)"/>
+          </g>
+        </g>
+      </g>
+      <g id="v-mixer" transform="translate(1010 926)">
+        <g data-part="move">
+          <g transform="translate(-140 0)">
+            <rect x="0" y="-48" width="276" height="14" fill="#3E4556"/>
+            <path d="M204 -46 L204 -116 Q204 -124 212 -124 L248 -124 Q268 -122 272 -100 L278 -46 Z" fill="#FF7B29"/>
+            <path d="M216 -114 L246 -114 Q260 -112 262 -96 L262 -84 L216 -84 Z" fill="#CDEEFF" stroke-width="3"/>
+            <g transform="translate(100 -94)">
+              <g data-part="drum">
+                <ellipse rx="92" ry="42" fill="#F4F1EA"/>
+                <g clip-path="url(#drum-clip)">
+                  <g data-part="stripes" fill="#FF7B29" stroke="none">
+                    <path d="M-160 -50 L-130 -50 L-160 50 L-190 50 Z"/>
+                    <path d="M-100 -50 L-70 -50 L-100 50 L-130 50 Z"/>
+                    <path d="M-40 -50 L-10 -50 L-40 50 L-70 50 Z"/>
+                    <path d="M20 -50 L50 -50 L20 50 L-10 50 Z"/>
+                    <path d="M80 -50 L110 -50 L80 50 L50 50 Z"/>
+                    <path d="M140 -50 L170 -50 L140 50 L110 50 Z"/>
+                  </g>
+                </g>
+                <ellipse rx="92" ry="42" fill="none"/>
+              </g>
+            </g>
+            <use href="#wheel" transform="translate(44 -22) scale(0.9)"/>
+            <use href="#wheel" transform="translate(110 -22) scale(0.9)"/>
+            <use href="#wheel" transform="translate(236 -22) scale(0.9)"/>
+          </g>
+        </g>
+      </g>
+
+      <!-- Bus (Space): waits off-screen on the left -->
+      <g id="v-bus" transform="translate(-240 926)">
+        <g data-part="move">
+          <g transform="translate(-190 0)">
+            <rect x="10" y="-180" width="360" height="152" rx="22" fill="#E8483B"/>
+            <rect x="12" y="-90" width="356" height="12" fill="#FFF0B8" stroke="none"/>
+            <g fill="#CDEEFF" stroke-width="3">
+              <rect x="28" y="-160" width="46" height="44" rx="8"/>
+              <rect x="84" y="-160" width="46" height="44" rx="8"/>
+              <rect x="140" y="-160" width="46" height="44" rx="8"/>
+              <rect x="196" y="-160" width="46" height="44" rx="8"/>
+              <rect x="252" y="-160" width="46" height="44" rx="8"/>
+              <path d="M310 -160 L350 -160 Q362 -160 364 -148 L366 -110 L310 -110 Z"/>
+            </g>
+            <circle cx="360" cy="-56" r="7" fill="#FFE27A" stroke-width="2.5"/>
+            <use href="#wheel" transform="translate(82 -26)"/>
+            <use href="#wheel" transform="translate(300 -26)"/>
+          </g>
+        </g>
+      </g>
+
+      <!-- Sky: plane (L0), helicopter (R0) -->
+      <g id="v-plane" transform="translate(330 200)">
+        <g data-part="move">
+          <path d="M-96 -16 L-120 -62 L-88 -62 L-58 -18 Z" fill="#E8483B"/>
+          <path d="M-110 0 Q-110 -18 -80 -20 L70 -20 Q104 -16 112 0 Q104 14 70 16 L-80 16 Q-110 14 -110 0 Z" fill="#F4F1EA"/>
+          <path d="M72 -17 Q98 -13 106 -3 L76 -3 Z" fill="#CDEEFF" stroke-width="3"/>
+          <g fill="#CDEEFF" stroke-width="2.5">
+            <circle cx="-50" cy="-5" r="5"/><circle cx="-28" cy="-5" r="5"/><circle cx="-6" cy="-5" r="5"/><circle cx="16" cy="-5" r="5"/><circle cx="38" cy="-5" r="5"/>
+          </g>
+          <rect x="-90" y="5" width="150" height="5" fill="#E8483B" stroke="none"/>
+          <path d="M-14 4 L36 4 L4 56 L-22 56 Z" fill="#2F8FC9"/>
+        </g>
+      </g>
+      <g id="v-helicopter" transform="translate(1090 210)">
+        <g data-part="move">
+          <g transform="translate(-113 -36)">
+            <rect x="0" y="-8" width="112" height="14" rx="7" fill="#FFC12E"/>
+            <g transform="translate(6 -1)">
+              <g data-part="tail">
+                <circle r="15" fill="none" stroke-width="3"/>
+                <path d="M-15 0 L15 0" fill="none" stroke-width="5"/>
+              </g>
+            </g>
+            <path d="M100 -30 Q100 -64 150 -64 L176 -64 Q222 -60 226 -18 Q226 10 196 12 L120 12 Q100 10 100 -8 Z" fill="#FF7B29"/>
+            <path d="M176 -56 Q212 -52 216 -22 L178 -22 Z" fill="#CDEEFF" stroke-width="3"/>
+            <path d="M128 12 L124 36 M200 12 L204 36" fill="none"/>
+            <path d="M108 36 L228 36" fill="none" stroke-width="6"/>
+            <rect x="154" y="-78" width="10" height="16" fill="#3E4556"/>
+            <g transform="translate(159 -82)">
+              <rect data-part="rotor" x="-100" y="-5" width="200" height="10" rx="5" fill="#3E4556"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+
+    <!-- Tap targets: left/right half × sky, high, ground, road -->
+    <g id="hits">
+      <rect class="hit" data-zone="L0" x="0" y="0" width="800" height="300"/>
+      <rect class="hit" data-zone="R0" x="800" y="0" width="800" height="300"/>
+      <rect class="hit" data-zone="L1" x="0" y="300" width="800" height="260"/>
+      <rect class="hit" data-zone="R1" x="800" y="300" width="800" height="260"/>
+      <rect class="hit" data-zone="L2" x="0" y="560" width="800" height="230"/>
+      <rect class="hit" data-zone="R2" x="800" y="560" width="800" height="230"/>
+      <rect class="hit" data-zone="L3" x="0" y="790" width="800" height="210"/>
+      <rect class="hit" data-zone="R3" x="800" y="790" width="800" height="210"/>
+    </g>
+    </g>
+  </svg>
+
+  <div class="bar" role="toolbar" aria-label="Parent controls">
+    <button type="button" data-action="camera" aria-pressed="false" aria-label="Camera">📷 <span>Camera</span></button>
+    <button type="button" data-action="sound" aria-pressed="true" aria-label="Sound">🔊 <span>Sound</span></button>
+    <button type="button" data-action="names" aria-pressed="true" aria-label="Names (Turkish)">🗣️ <span>Names (TR)</span></button>
+    <button type="button" data-action="fullscreen" aria-label="Full screen">⛶ <span>Full screen</span></button>
+    <a href="../index.html" aria-label="Back to games">← <span>Games</span></a>
+  </div>
+
+  <div class="start" id="start">
+    <div class="start-card">
       <h1>Splash</h1>
-      <p class="tagline">Press any key or tap the board for a burst of colour and a friendly note. That's the whole game — a tiny stress-reliever.</p>
-    </header>
-
-    <div class="splash-wrap">
-      <div class="splash-hint">
-        Press any <kbd>key</kbd> · tap the board
-        <button class="splash-mute" data-mute type="button" aria-pressed="false">
-          <span data-mute-icon aria-hidden="true">🔊</span> <span data-mute-label>Sound on</span>
-        </button>
+      <p class="sub">Trucks, diggers, cranes &amp; planes</p>
+      <div class="modes">
+        <button class="mode" type="button" data-start="keyboard">⌨️ Keyboard</button>
+        <button class="mode cam" type="button" data-start="camera">📷 Camera</button>
       </div>
-      <div class="splash-board" id="splashBoard" aria-live="polite">
-        <div class="splash-welcome" data-welcome>
-          <span class="emoji" aria-hidden="true">🎹</span>
-          Tap the board or press a key
-        </div>
-      </div>
-      <div class="splash-tip">Works with keyboard, touch and mouse</div>
+      <p class="parents">Keys on the <strong>left</strong> move things on the left, keys on the <strong>right</strong> move things on the right. The top row of keys moves things in the sky; the bottom row moves the cars. <kbd>Space</kbd> sends the bus. Tapping works too.</p>
+      <p class="parents">Full screen on/off: hold <kbd>Left Ctrl</kbd> and press <kbd>Enter</kbd>. Camera mode watches for movement; the video stays on this device.</p>
+      <p class="parents"><a href="../index.html">← Back to games</a></p>
     </div>
+  </div>
 
-    <a class="back-link" href="../index.html">← All games</a>
-  </main>
+  <video id="cam" autoplay muted playsinline hidden></video>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <footer class="site-footer wrap wrap-wide">
-    <p>© <span data-year>2026</span> İlter Kavlak</p>
-  </footer>
-
-  <script src="../../assets/app.js"></script>
-  <script>
-  (function () {
-    'use strict';
-
-    var COLORS = ['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#B983FF','#FF9F45','#FF66C4','#00D9C0','#F472B6','#34D399'];
-    var SHAPES = ['circle','star','heart','square','triangle','hexagon','diamond','flower'];
-    // C major pentatonic across three octaves — any sequence sounds musical.
-    var NOTES = [261.63,293.66,329.63,392.00,440.00,523.25,587.33,659.25,783.99,880.00,1046.50,1174.66,1318.51,1567.98,1760.00];
-
-    var board    = document.getElementById('splashBoard');
-    var welcome  = document.querySelector('[data-welcome]');
-    var muteBtn  = document.querySelector('[data-mute]');
-    var muteIcon = document.querySelector('[data-mute-icon]');
-    var muteLbl  = document.querySelector('[data-mute-label]');
-
-    var audioCtx = null;
-    var muted = false;
-    var lastNoteIndex = -1;
-
-    function ensureAudio() {
-      if (!audioCtx) {
-        try {
-          var AC = window.AudioContext || window.webkitAudioContext;
-          if (!AC) return null;
-          audioCtx = new AC();
-        } catch (_) { return null; }
-      }
-      if (audioCtx.state === 'suspended') audioCtx.resume().catch(function () {});
-      return audioCtx;
-    }
-
-    function playNote(freq, duration) {
-      duration = duration || 0.6;
-      if (muted) return;
-      var ctx = ensureAudio();
-      if (!ctx) return;
-      var now = ctx.currentTime;
-      var osc1 = ctx.createOscillator(), osc2 = ctx.createOscillator();
-      var gain = ctx.createGain(), gain2 = ctx.createGain();
-      osc1.type = 'triangle'; osc1.frequency.value = freq;
-      osc2.type = 'sine'; osc2.frequency.value = freq * 2;
-      osc1.connect(gain); osc2.connect(gain2);
-      gain.connect(ctx.destination); gain2.connect(ctx.destination);
-      gain.gain.setValueAtTime(0.0001, now);
-      gain.gain.exponentialRampToValueAtTime(0.25, now + 0.015);
-      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-      gain2.gain.setValueAtTime(0.0001, now);
-      gain2.gain.exponentialRampToValueAtTime(0.08, now + 0.02);
-      gain2.gain.exponentialRampToValueAtTime(0.0001, now + duration * 0.6);
-      osc1.start(now); osc2.start(now);
-      osc1.stop(now + duration); osc2.stop(now + duration * 0.6);
-    }
-
-    function hash(str) {
-      var h = 0;
-      for (var i = 0; i < str.length; i++) h = ((h << 5) - h + str.charCodeAt(i)) | 0;
-      return Math.abs(h);
-    }
-    function pickFrom(arr, seed) {
-      if (seed == null || seed === '') return arr[Math.floor(Math.random() * arr.length)];
-      return arr[hash(String(seed)) % arr.length];
-    }
-    function nextNote(seed) {
-      var idx;
-      if (seed == null || seed === '') {
-        do { idx = Math.floor(Math.random() * NOTES.length); } while (idx === lastNoteIndex && NOTES.length > 1);
-      } else {
-        idx = hash(String(seed)) % NOTES.length;
-      }
-      lastNoteIndex = idx;
-      return NOTES[idx];
-    }
-
-    function shapeSvg(shape, color, label) {
-      var stroke = 'rgba(255,255,255,0.95)';
-      var inner;
-      switch (shape) {
-        case 'circle':   inner = '<circle cx="50" cy="50" r="42" fill="' + color + '" stroke="' + stroke + '" stroke-width="4"/>'; break;
-        case 'star':     inner = '<polygon points="50,5 61,35 94,36 67,57 77,90 50,72 23,90 33,57 6,36 39,35" fill="' + color + '" stroke="' + stroke + '" stroke-width="3" stroke-linejoin="round"/>'; break;
-        case 'heart':    inner = '<path d="M50 86 C20 60 10 35 28 20 C40 13 50 25 50 35 C50 25 60 13 72 20 C90 35 80 60 50 86 Z" fill="' + color + '" stroke="' + stroke + '" stroke-width="3" stroke-linejoin="round"/>'; break;
-        case 'square':   inner = '<rect x="10" y="10" width="80" height="80" rx="14" fill="' + color + '" stroke="' + stroke + '" stroke-width="4"/>'; break;
-        case 'triangle': inner = '<polygon points="50,8 92,84 8,84" fill="' + color + '" stroke="' + stroke + '" stroke-width="4" stroke-linejoin="round"/>'; break;
-        case 'hexagon':  inner = '<polygon points="50,5 90,27 90,73 50,95 10,73 10,27" fill="' + color + '" stroke="' + stroke + '" stroke-width="4" stroke-linejoin="round"/>'; break;
-        case 'diamond':  inner = '<polygon points="50,5 92,50 50,95 8,50" fill="' + color + '" stroke="' + stroke + '" stroke-width="4" stroke-linejoin="round"/>'; break;
-        case 'flower':
-          inner = '<circle cx="50" cy="22" r="18" fill="' + color + '" stroke="' + stroke + '" stroke-width="3"/>' +
-                  '<circle cx="78" cy="40" r="18" fill="' + color + '" stroke="' + stroke + '" stroke-width="3"/>' +
-                  '<circle cx="68" cy="78" r="18" fill="' + color + '" stroke="' + stroke + '" stroke-width="3"/>' +
-                  '<circle cx="32" cy="78" r="18" fill="' + color + '" stroke="' + stroke + '" stroke-width="3"/>' +
-                  '<circle cx="22" cy="40" r="18" fill="' + color + '" stroke="' + stroke + '" stroke-width="3"/>' +
-                  '<circle cx="50" cy="50" r="14" fill="#FFFACD" stroke="' + stroke + '" stroke-width="2"/>';
-          break;
-        default: inner = '<circle cx="50" cy="50" r="42" fill="' + color + '"/>';
-      }
-      var text = label
-        ? '<text x="50" y="' + (shape === 'triangle' ? 70 : 62) + '" text-anchor="middle" font-size="' + (label.length > 1 ? 26 : 40) + '">' + label + '</text>'
-        : '';
-      return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' + inner + text + '</svg>';
-    }
-
-    function spawnParticles(x, y, color) {
-      var count = 7;
-      for (var i = 0; i < count; i++) {
-        var angle = (i / count) * Math.PI * 2 + Math.random() * 0.6;
-        var dist = 45 + Math.random() * 35;
-        var p = document.createElement('div');
-        p.className = 'splash-particle';
-        p.style.left = x + 'px';
-        p.style.top = y + 'px';
-        p.style.background = color;
-        p.style.color = color;
-        p.style.setProperty('--dx', (Math.cos(angle) * dist) + 'px');
-        p.style.setProperty('--dy', (Math.sin(angle) * dist) + 'px');
-        board.appendChild(p);
-        (function (node) { setTimeout(function () { node.remove(); }, 900); })(p);
-      }
-    }
-
-    function spawn(seed, label, clientX, clientY) {
-      if (welcome) welcome.style.display = 'none';
-      var color = pickFrom(COLORS, seed);
-      var shape = pickFrom(SHAPES, seed);
-      var rect = board.getBoundingClientRect();
-      var x, y;
-      if (clientX != null && clientY != null) {
-        x = clientX - rect.left; y = clientY - rect.top;
-      } else {
-        var pad = 80;
-        x = pad + Math.random() * Math.max(1, rect.width - 2 * pad);
-        y = pad + Math.random() * Math.max(1, rect.height - 2 * pad);
-      }
-      var size = 130 + Math.random() * 70;
-      var rot = (Math.random() * 40 - 20).toFixed(1) + 'deg';
-      var el = document.createElement('div');
-      el.className = 'splash-shape';
-      el.style.left = x + 'px'; el.style.top = y + 'px';
-      el.style.width = size + 'px'; el.style.height = size + 'px';
-      el.style.setProperty('--rot', rot);
-      el.innerHTML = shapeSvg(shape, color, label);
-      board.appendChild(el);
-      (function (node) { setTimeout(function () { node.remove(); }, 2500); })(el);
-      spawnParticles(x, y, color);
-      playNote(nextNote(seed));
-    }
-
-    var IGNORE_KEYS = { Shift:1, Control:1, Alt:1, Meta:1, CapsLock:1, NumLock:1, ScrollLock:1, Tab:1, Escape:1, ContextMenu:1, Dead:1, Unidentified:1 };
-
-    function keyToLabel(k) {
-      if (k === ' ' || k === 'Spacebar') return '␣';
-      if (k.length === 1) return k.toUpperCase();
-      var map = { Enter:'↵', Backspace:'⌫', Delete:'✕', ArrowUp:'↑', ArrowDown:'↓', ArrowLeft:'←', ArrowRight:'→', Home:'⇱', End:'⇲', PageUp:'⇞', PageDown:'⇟' };
-      if (map[k]) return map[k];
-      if (/^F\d{1,2}$/.test(k)) return k;
-      return k.substring(0, 2).toUpperCase();
-    }
-
-    function onKeyDown(e) {
-      if (e.ctrlKey || e.metaKey || e.altKey) return;
-      var t = e.target;
-      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
-      if (IGNORE_KEYS[e.key]) return;
-      if (e.repeat) return;
-      e.preventDefault();
-      spawn(e.key, keyToLabel(e.key), null, null);
-    }
-    function onPointerDown(e) {
-      e.preventDefault();
-      try { board.setPointerCapture(e.pointerId); } catch (_) {}
-      spawn(null, '', e.clientX, e.clientY);
-    }
-    function onMute() {
-      muted = !muted;
-      muteBtn.classList.toggle('is-off', muted);
-      muteBtn.setAttribute('aria-pressed', String(muted));
-      muteIcon.textContent = muted ? '🔇' : '🔊';
-      muteLbl.textContent = muted ? 'Sound off' : 'Sound on';
-      if (muted && audioCtx) { try { audioCtx.suspend(); } catch (_) {} }
-    }
-
-    document.addEventListener('keydown', onKeyDown);
-    board.addEventListener('pointerdown', onPointerDown);
-    board.addEventListener('contextmenu', function (e) { e.preventDefault(); });
-    muteBtn.addEventListener('click', onMute);
-  })();
-  </script>
+  <script src="splash.js"></script>
 </body>
 </html>

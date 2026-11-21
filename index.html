@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>İlter Kavlak — SRE / Cloud Engineer</title>
-  <meta name="description" content="İlter Kavlak — SRE / Cloud Engineer at Upstash. Kubernetes, AWS, GCP, and internal platform services, plus a few side projects like nitpick, an AI code-review primitive for agents." />
+  <meta name="description" content="İlter Kavlak — SRE / Cloud Engineer at Upstash. Kubernetes, AWS, GCP, and internal platform services, plus side projects like nitpick (parallel AI code review) and blobshelf (Upstash Blob as a drive on your Mac)." />
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d1117" />
 
@@ -12,7 +12,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="İlter Kavlak" />
   <meta property="og:title" content="İlter Kavlak — SRE / Cloud Engineer" />
-  <meta property="og:description" content="SRE / Cloud Engineer at Upstash. Kubernetes, AWS, GCP, internal platform services, and side projects like nitpick — an AI code-review primitive for agents." />
+  <meta property="og:description" content="SRE / Cloud Engineer at Upstash. Kubernetes, AWS, GCP, internal platform services, and side projects like nitpick and blobshelf." />
   <meta property="og:url" content="https://ilterkavlak.github.io/" />
   <meta property="og:image" content="https://ilterkavlak.github.io/og-image.png" />
   <meta property="og:image:type" content="image/png" />
@@ -23,7 +23,7 @@
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="İlter Kavlak — SRE / Cloud Engineer" />
-  <meta name="twitter:description" content="SRE / Cloud Engineer at Upstash. Side projects like nitpick — an AI code-review primitive for agents." />
+  <meta name="twitter:description" content="SRE / Cloud Engineer at Upstash. Side projects like nitpick and blobshelf." />
   <meta name="twitter:image" content="https://ilterkavlak.github.io/og-image.png" />
 
   <link rel="canonical" href="https://ilterkavlak.github.io/" />
@@ -50,7 +50,7 @@
   <main id="main">
     <!-- Hero + contact (top of page) -->
     <header class="hero wrap" id="contact">
-      <p class="role">SRE / Cloud Engineer at Upstash</p>
+      <p class="status"><span class="dot" aria-hidden="true"></span>SRE / Cloud Engineer at Upstash</p>
       <h1>İlter Kavlak</h1>
       <p class="tagline">
         I build and keep production systems boring — Kubernetes, cloud infrastructure,
@@ -188,21 +188,30 @@
       </div>
     </section>
 
+    <!-- Featured projects (rendered from data/projects.js) -->
+    <section class="section wrap" aria-label="Featured projects">
+      <h2 class="section-title">Featured projects</h2>
+      <div class="card-grid" id="featured"></div>
+    </section>
+
     <!-- Explore -->
     <section class="section wrap" aria-label="Explore">
       <h2 class="section-title">Explore</h2>
       <div class="card-grid">
         <a class="card" href="projects/index.html">
+          <span class="card-icon" aria-hidden="true">🛠️</span>
           <h3>Projects</h3>
           <p>Side projects I put real weekends into — each with its own landing page.</p>
           <div class="card-foot">Browse projects →</div>
         </a>
-        <a class="card" href="blog/index.html">
+        <a class="card" href="blog/index.html" style="--card-accent:#6d5ae6">
+          <span class="card-icon" aria-hidden="true">✍️</span>
           <h3>Blog</h3>
           <p>Notes on infrastructure, reliability, and the occasional rabbit hole.</p>
           <div class="card-foot">Read the blog →</div>
         </a>
-        <a class="card" href="games/index.html">
+        <a class="card" href="games/index.html" style="--card-accent:#f59e0b">
+          <span class="card-icon" aria-hidden="true">🎮</span>
           <h3>Games</h3>
           <p>Tiny browser toys built for fun. No installs, no accounts — just play.</p>
           <div class="card-foot">Play something →</div>
@@ -227,5 +236,12 @@
   </footer>
 
   <script src="assets/app.js"></script>
+  <script src="data/projects.js"></script>
+  <script>
+    // Data hrefs are relative to /projects/, so point them there from home.
+    renderCards('featured', window.PROJECTS.map(function (p) {
+      return Object.assign({}, p, { href: 'projects/' + p.href });
+    }));
+  </script>
 </body>
 </html>

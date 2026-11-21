@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>blobshelf — Upstash Blob as a drive on your Mac · İlter Kavlak</title>
+  <meta name="description" content="Blobshelf is a small native macOS app for Upstash Blob. Browse your buckets like folders in Finder and keep folders on your Mac backed up to them automatically. App Sandbox, four permissions, no dependencies, built from source." />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fbfbfc" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0f15" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="İlter Kavlak" />
+  <meta property="og:title" content="blobshelf — Upstash Blob as a drive on your Mac" />
+  <meta property="og:description" content="Browse Upstash Blob buckets like Finder folders and back up Mac folders automatically. Native, sandboxed, no dependencies." />
+  <meta property="og:url" content="https://ilterkavlak.github.io/projects/blobshelf/" />
+  <meta property="og:image" content="https://ilterkavlak.github.io/projects/blobshelf/og-image.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="blobshelf — your Upstash Blob buckets as a drive on your Mac." />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="blobshelf — Upstash Blob as a drive on your Mac" />
+  <meta name="twitter:description" content="Browse buckets like Finder folders, back up Mac folders automatically. Native, sandboxed, no dependencies." />
+  <meta name="twitter:image" content="https://ilterkavlak.github.io/projects/blobshelf/og-image.png" />
+
+  <link rel="canonical" href="https://ilterkavlak.github.io/projects/blobshelf/" />
+  <link rel="stylesheet" href="../../assets/styles.css" />
+  <style>
+    /* blobshelf — accent colour and the Mac window mock */
+    body {
+      --accent: #2563eb; --accent-hover: #1d4ed8;
+      --accent-soft: rgba(37, 99, 235, 0.10); --accent-glow: rgba(37, 99, 235, 0.28);
+      --glow-1: rgba(37, 99, 235, 0.10);
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        --accent: #60a5fa; --accent-hover: #93c5fd; --on-accent: #0b1a33;
+        --accent-soft: rgba(96, 165, 250, 0.14); --accent-glow: rgba(96, 165, 250, 0.30);
+        --glow-1: rgba(96, 165, 250, 0.11);
+      }
+    }
+
+    .bs-stage { position: relative; margin-top: 2.75rem; }
+    .bs-window {
+      border: 1px solid var(--border-strong); border-radius: 14px; overflow: hidden;
+      background: var(--surface); box-shadow: var(--shadow-lg); font-size: 0.85rem;
+    }
+    .bs-titlebar {
+      position: relative; display: flex; align-items: center; gap: 0.4rem; padding: 0.65rem 0.9rem;
+      background: var(--bg-subtle); border-bottom: 1px solid var(--border);
+    }
+    .bs-titlebar .light { width: 11px; height: 11px; border-radius: 50%; }
+    .bs-titlebar .r { background: #ff5f57; } .bs-titlebar .y { background: #febc2e; } .bs-titlebar .g { background: #28c840; }
+    .bs-titlebar .title { position: absolute; left: 50%; transform: translateX(-50%); font-weight: 700; color: var(--heading); font-size: 0.8rem; }
+    .bs-body { display: grid; grid-template-columns: 13rem 1fr; min-height: 19rem; }
+    .bs-side { padding: 0.9rem 0.6rem; border-right: 1px solid var(--border); background: color-mix(in srgb, var(--bg-subtle) 60%, var(--surface)); }
+    .bs-side h4 { font-family: var(--font-sans); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin: 0.2rem 0.5rem 0.4rem; }
+    .bs-side h4 + ul { margin-bottom: 1rem; }
+    .bs-side li { display: flex; align-items: center; gap: 0.5rem; padding: 0.32rem 0.5rem; border-radius: 7px; color: var(--text); white-space: nowrap; }
+    .bs-side li.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+    .bs-side .st { margin-left: auto; font-size: 0.72rem; color: var(--text-muted); }
+    .bs-side .ok { color: #16a34a; }
+    .bs-main { padding: 0.9rem 1rem; min-width: 0; }
+    .bs-tools { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+    .bs-crumb { font-weight: 700; color: var(--heading); margin-right: auto; }
+    .bs-btn { padding: 0.25rem 0.6rem; border: 1px solid var(--border-strong); border-radius: 7px; font-size: 0.76rem; color: var(--text); background: var(--surface); }
+    .bs-btn.pri { background: var(--accent); border-color: transparent; color: var(--on-accent); }
+    .bs-files { width: 100%; border-collapse: collapse; }
+    .bs-files th { text-align: left; font-weight: 600; font-size: 0.72rem; color: var(--text-muted); padding: 0.3rem 0.5rem; border-bottom: 1px solid var(--border); }
+    .bs-files td { padding: 0.42rem 0.5rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .bs-files tr:last-child td { border-bottom: 0; }
+    .bs-files td:first-child { width: 100%; color: var(--heading); }
+    .bs-files td + td { color: var(--text-muted); text-align: right; }
+    .bs-files .up td:first-child::after { content: " · uploading 64%"; color: var(--accent); font-size: 0.74rem; }
+    .bs-menu {
+      position: absolute; right: -0.75rem; top: -2.6rem; width: 15.5rem; padding: 0.8rem 0.9rem;
+      border: 1px solid var(--border-strong); border-radius: 12px; background: var(--nav-bg);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: var(--shadow-lg); font-size: 0.8rem;
+    }
+    .bs-menu strong { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.45rem; }
+    .bs-menu strong::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; }
+    .bs-menu p { margin: 0.15rem 0; color: var(--text-muted); display: flex; justify-content: space-between; gap: 0.5rem; }
+    .bs-bar { height: 5px; border-radius: 99px; background: var(--border); margin: 0.35rem 0 0.2rem; overflow: hidden; }
+    .bs-bar span { display: block; width: 64%; height: 100%; background: var(--accent); }
+    @media (max-width: 720px) {
+      .bs-body { grid-template-columns: 1fr; }
+      .bs-side { display: none; }
+      .bs-menu { position: static; width: auto; margin-top: 0.75rem; }
+      .bs-files th:nth-child(3), .bs-files td:nth-child(3) { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <nav class="nav" aria-label="Primary">
+    <div class="nav-inner">
+      <a class="nav-brand" href="../../index.html">İlter Kavlak<span>.</span></a>
+      <div class="nav-links">
+        <a href="../../index.html">Home</a>
+        <a href="../index.html" aria-current="page">Projects</a>
+        <a href="../../blog/index.html">Blog</a>
+        <a href="../../games/index.html">Games</a>
+        <a href="../../index.html#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main" class="wrap wrap-wide">
+    <header class="hero">
+      <p class="status"><span class="dot" aria-hidden="true"></span>Open source · native macOS app</p>
+      <h1>Your Upstash Blob buckets, as a drive on your Mac.</h1>
+      <p class="tagline">
+        Blobshelf is a small native macOS app for Upstash Blob. Browse your buckets like folders in
+        Finder, and keep folders on your Mac backed up to them automatically — much like Google
+        Drive for desktop. It runs in Apple's App Sandbox with the smallest set of permissions it can
+        work with, and you build it yourself from source.
+      </p>
+      <div class="contact-row">
+        <a class="contact-btn primary" href="https://github.com/ilterkavlak/blobshelf" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.55-1.14-4.55-5.05 0-1.11.39-2.02 1.03-2.74-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.74 0 3.92-2.34 4.78-4.57 5.03.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
+          View on GitHub
+        </a>
+        <a class="contact-btn" href="#install">Build &amp; install</a>
+        <a class="contact-btn" href="#security">Security</a>
+      </div>
+      <div class="lp-badges" aria-label="Requirements">
+        <span class="tag">macOS 14+</span><span class="tag">Swift 6</span><span class="tag">App Sandbox on</span><span class="tag">0 dependencies</span><span class="tag">MIT</span>
+      </div>
+
+      <div class="bs-stage">
+        <div class="bs-window" role="img" aria-label="Illustration of the Blobshelf window: a sidebar with buckets and backups, and a file list of the selected bucket">
+          <div class="bs-titlebar"><span class="light r"></span><span class="light y"></span><span class="light g"></span><span class="title">Blobshelf</span></div>
+          <div class="bs-body">
+            <div class="bs-side">
+              <h4>Buckets</h4>
+              <ul>
+                <li class="on">🪣 photos</li>
+                <li>🪣 archive</li>
+                <li>🌐 public-assets</li>
+              </ul>
+              <h4>Backups</h4>
+              <ul>
+                <li>📁 Documents <span class="st ok">✓ backed up</span></li>
+                <li>📁 Projects <span class="st">syncing</span></li>
+              </ul>
+            </div>
+            <div class="bs-main">
+              <div class="bs-tools">
+                <span class="bs-crumb">photos › 2026</span>
+                <span class="bs-btn">New Folder</span>
+                <span class="bs-btn pri">Upload</span>
+              </div>
+              <table class="bs-files">
+                <thead><tr><th>Name</th><th>Size</th><th>Modified</th></tr></thead>
+                <tbody>
+                  <tr><td>📁 summer</td><td>—</td><td>Aug 14</td></tr>
+                  <tr><td>📁 birthday</td><td>—</td><td>Nov 12</td></tr>
+                  <tr><td>🖼️ beach.heic</td><td>3.1 MB</td><td>Aug 15</td></tr>
+                  <tr class="up"><td>🎞️ first-steps.mov</td><td>412 MB</td><td>Nov 19</td></tr>
+                  <tr><td>📄 albums.pdf</td><td>840 KB</td><td>Nov 20</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="bs-menu" aria-hidden="true">
+          <strong>Everything is backed up</strong>
+          <p><span>Documents</span><span>2 min ago</span></p>
+          <p><span>Projects</span><span>64%</span></p>
+          <div class="bs-bar"><span></span></div>
+        </div>
+      </div>
+    </header>
+
+    <section class="section" aria-labelledby="features-h">
+      <div class="section-head">
+        <p class="section-title">Features</p>
+        <h2 id="features-h">A Finder for your buckets, and backups that never delete.</h2>
+      </div>
+      <div class="lp-grid">
+        <div class="lp-feature"><div class="ico" aria-hidden="true">🗂️</div><h3>Browse</h3><p>Any number of buckets in a list or grid: folders, upload (button or drag and drop, folders included), download, Quick Look, rename, delete, new folder, search, and copyable links for public buckets.</p></div>
+        <div class="lp-feature"><div class="ico" aria-hidden="true">🔁</div><h3>Automatic backups</h3><p>Pick a folder and a bucket. New and changed files upload a few seconds after they change, on a schedule, and on Back Up Now. Backups only add and update — deleting a file on your Mac never deletes it from the bucket.</p></div>
+        <div class="lp-feature"><div class="ico" aria-hidden="true">📶</div><h3>Menu bar status</h3><p>The icon shows whether everything is backed up, syncing, paused or needs attention; its panel lists every backup and transfer with progress. Keeps running when you close the window.</p></div>
+        <div class="lp-feature"><div class="ico" aria-hidden="true">⚡</div><h3>Fast</h3><p>Large files upload in parallel parts, backups upload eight files at a time, and only new or changed files are sent.</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="security" aria-labelledby="security-h">
+      <div class="section-head">
+        <p class="section-title">Security at a glance</p>
+        <h2 id="security-h">Four permissions. Two hosts. No third-party code.</h2>
+        <p class="lede">Everything the app may do is in <code>Support/Blobshelf.entitlements</code>, and CI checks it is exactly these four.</p>
+      </div>
+      <div class="lp-grid">
+        <div class="lp-feature"><div class="ico" aria-hidden="true">🔒</div><h3>Sandboxed</h3><p>App Sandbox plus the hardened runtime, with only four entitlements.</p></div>
+        <div class="lp-feature"><div class="ico" aria-hidden="true">📁</div><h3>Only what you pick</h3><p>Sees only files and folders you choose. Backup folders are opened read-only.</p></div>
+        <div class="lp-feature"><div class="ico" aria-hidden="true">🔑</div><h3>Keychain tokens</h3><p>Bucket tokens live in your Keychain — never in files or logs.</p></div>
+        <div class="lp-feature"><div class="ico" aria-hidden="true">🌐</div><h3>Two hosts, HTTPS</h3><p><code>blob.upstash.io</code> and Cloudflare R2. No analytics, tracking or update checks; nothing cached on disk; redirects refused.</p></div>
+        <div class="lp-feature"><div class="ico" aria-hidden="true">🚫</div><h3>Safe defaults</h3><p>Refuses to back up into public buckets and skips secrets such as SSH keys, <code>.env</code> files and cloud credentials.</p></div>
+        <div class="lp-feature"><div class="ico" aria-hidden="true">🛡️</div><h3>Never runs bucket code</h3><p>Apps, scripts and installers are only previewed, and every download is quarantined so macOS checks it first.</p></div>
+      </div>
+
+      <div class="lp-two" style="margin-top:1rem;">
+        <div class="lp-table-wrap">
+          <table class="lp-table">
+            <thead><tr><th>Permission</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>App Sandbox</td><td>Walls the app off from the rest of your Mac.</td></tr>
+              <tr><td>Outgoing network</td><td>Reach <code>blob.upstash.io</code> and your bucket's storage. Nothing can connect <em>to</em> the app.</td></tr>
+              <tr><td>Files you choose</td><td>Only what you pick or drop on the window. Write access only to save downloads where you chose.</td></tr>
+              <tr><td>Remember folders</td><td>So backups can read their folders after a restart — remembered read-only.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="lp-table-wrap">
+          <table class="lp-table">
+            <thead><tr><th>What leaves your Mac</th><th>Sent to</th></tr></thead>
+            <tbody>
+              <tr><td>Bucket token</td><td><code>blob.upstash.io</code>, exchanged for storage credentials that expire after about 10 minutes.</td></tr>
+              <tr><td>Files you upload or back up</td><td>Your bucket on Cloudflare R2, with their names and folder paths.</td></tr>
+              <tr><td>Anything else</td><td>Nothing: no usage data, no device name, no file listings beyond what you back up.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="lp-note">
+        <p>Data is encrypted in transit and stored encrypted by the provider, but it is <strong>not</strong> end-to-end encrypted: Upstash and Cloudflare, as operators of the storage, could read it. Anyone with a bucket's token can read and change everything in that bucket.</p>
+      </div>
+    </section>
+
+    <section class="section" id="install" aria-labelledby="install-h">
+      <div class="section-head">
+        <p class="section-title">Build &amp; install</p>
+        <h2 id="install-h">You build it yourself. It takes about a minute.</h2>
+        <p class="lede">macOS 14 (Sonoma) or newer, on Apple silicon or Intel. Because you build it on your own Mac, there is no "unidentified developer" warning.</p>
+      </div>
+      <div class="lp-two">
+        <div>
+          <div class="lp-code" style="margin-top:0;">
+            <div class="lp-code-head"><span>Terminal</span><button type="button" data-copy>Copy</button></div>
+            <pre><span class="cm"># Command Line Tools (skip if you have Xcode)</span>
+xcode-select --install
+
+<span class="cm"># get the code, then build and install</span>
+git clone https://github.com/ilterkavlak/blobshelf.git
+cd blobshelf
+./install.sh</pre>
+          </div>
+          <p class="muted" style="margin-top:0.75rem; font-size:0.9rem;">Installs to <code>/Applications</code> (or <code>~/Applications</code>) and opens. To update later: <code>git pull &amp;&amp; ./install.sh</code>. To remove everything: <code>./uninstall.sh</code> — it asks first and never touches your buckets.</p>
+        </div>
+        <ol class="lp-steps">
+          <li><strong>Add a bucket</strong><p>Click Add Your First Bucket and paste its token from the Upstash console. Add as many as you like.</p></li>
+          <li><strong>Browse</strong><p>Choose a bucket in the sidebar. Drop files onto the window to upload them.</p></li>
+          <li><strong>Back up a folder</strong><p>Backups → Add Backup: pick a folder, a private bucket and a destination. Exclude patterns are shell globs like <code>.git</code> or <code>*.tmp</code>.</p></li>
+          <li><strong>Keep it running</strong><p>Optional: Settings → Open at login, so backups survive a restart.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="built-h">
+      <div class="section-head">
+        <p class="section-title">How this was built</p>
+        <h2 id="built-h">Vibe coded — and upfront about it.</h2>
+      </div>
+      <div class="lp-note" style="margin-top:0;">
+        <p>Claude (in Claude Code) wrote the code from a description; OpenAI's Codex reviewed the plans and the code over several rounds, and an independent AI security audit was run. No human has reviewed it line by line. What is verified:</p>
+        <ul>
+          <li>64 automated tests, including live tests against a real Upstash Blob bucket: multipart uploads, unusual file names, 1,000+ objects, credential refresh, and incremental backups that skip secrets and never delete.</li>
+          <li>CI builds the app, runs the tests, and checks the entitlements are exactly the four above.</li>
+          <li>The packaged app launches sandboxed with those entitlements.</li>
+        </ul>
+        <p style="margin-top:0.75rem;">Not verified: a human security audit, or UI tests. It is about 3,000 lines of Swift with no dependencies — read it before trusting it with data that matters. Blobshelf is an independent project, not an official Upstash product.</p>
+      </div>
+    </section>
+
+    <div class="lp-cta">
+      <h2>Give your buckets a home in Finder.</h2>
+      <p class="muted">Open source under MIT. Build it, read it, keep your own copies of anything important.</p>
+      <div class="contact-row">
+        <a class="contact-btn primary" href="https://github.com/ilterkavlak/blobshelf" target="_blank" rel="noopener">Star on GitHub</a>
+        <a class="contact-btn" href="https://github.com/ilterkavlak/blobshelf#readme" target="_blank" rel="noopener">Read the README</a>
+      </div>
+    </div>
+
+    <a class="back-link" href="../index.html">← All projects</a>
+  </main>
+
+  <footer class="site-footer wrap wrap-wide">
+    <p>© <span data-year>2026</span> İlter Kavlak · <a href="https://github.com/ilterkavlak/blobshelf" target="_blank" rel="noopener">github.com/ilterkavlak/blobshelf</a> · Upstash is a trademark of its owner; this project is not affiliated with or endorsed by Upstash.</p>
+  </footer>
+
+  <script src="../../assets/app.js"></script>
+</body>
+</html>
