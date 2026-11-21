@@ -4,14 +4,16 @@
   =============
   To add a game:
     1. Copy this file to /games/<slug>/index.html
-    2. Replace every {{PLACEHOLDER}} and build the game inside the <script> block.
-       Keep it self-contained (no external libraries) to match the rest of the site.
+    2. Replace every {{PLACEHOLDER}} and build the game inside the <script> block
+       (or in a game.js next to it once it grows). Keep it self-contained (no
+       external libraries) to match the rest of the site.
     3. Prepend an entry to /data/games.js (newest first). The href is relative to
        the games listing, so it is just "<slug>/index.html":
          { title: '{{TITLE}}', href: '{{SLUG}}/index.html',
-           meta: '{{META}}', tagline: '{{TAGLINE}}', foot: 'Play →' }
+           meta: '{{META}}', tagline: '{{TAGLINE}}', foot: 'Play →',
+           icon: '{{EMOJI}}', accent: '#{{HEX}}' }   // icon and accent are optional
   The Games listing picks it up automatically.
-  For a worked example, see /games/splash/index.html.
+  For a full-screen game with its own layout and script, see /games/splash/.
 -->
 <html lang="en">
 <head>

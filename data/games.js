@@ -6,8 +6,10 @@ window.GAMES = [
   {
     title: 'Splash',
     href: 'splash/index.html',
-    meta: 'Toy · keyboard · touch · mouse',
-    tagline: 'Press any key or tap the board for a burst of colour and a friendly note. A tiny stress-reliever that plays with sound and light.',
-    foot: 'Play →'
+    meta: 'Toddler toy · keyboard · camera · touch',
+    tagline: 'Trucks, diggers, cranes, planes and a helicopter. Keys on the left move the left side, keys on the right move the right side — or wave at the camera.',
+    foot: 'Play →',
+    icon: '🚜',
+    accent: '#f59e0b'
   }
 ];

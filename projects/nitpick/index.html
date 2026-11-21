@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>nitpick — AI code review built for agents · İlter Kavlak</title>
-  <meta name="description" content="A code-review primitive for AI coding agents. Specialist reviewers and scanners run in parallel sandboxes, then a verifier consolidates findings into a stable JSON verdict with typed exit codes. Wire it into a fix-until-clean loop, a pre-PR polish step, or a CI gate." />
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d1117" />
+  <title>nitpick — parallel AI code review for pull requests · İlter Kavlak</title>
+  <meta name="description" content="nitpick runs specialist AI reviewers and scanners against a GitHub pull request or ref range in parallel, with every AI agent in its own isolated sandbox. A verifier on a different model family checks every finding; you get a verdict, a markdown report, JSON with a stable schema and exit codes an agent or CI job can gate on." />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fbfbfc" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0f15" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="İlter Kavlak" />
-  <meta property="og:title" content="nitpick — AI code review built for agents" />
-  <meta property="og:description" content="A code-review primitive for AI coding agents. Specialist reviewers + scanners in parallel sandboxes. Stable JSON, typed exit codes. Wire it into a fix-until-clean loop or a CI gate." />
+  <meta property="og:title" content="nitpick — parallel AI code review for pull requests" />
+  <meta property="og:description" content="Specialist AI reviewers in parallel sandboxes plus three scanners, a verifier on a different model family, and JSON plus exit codes your agent or CI can gate on." />
   <meta property="og:url" content="https://ilterkavlak.github.io/projects/nitpick/" />
   <meta property="og:image" content="https://ilterkavlak.github.io/projects/nitpick/og-image.png" />
   <meta property="og:image:type" content="image/png" />
@@ -21,74 +21,12 @@
   <meta property="og:image:alt" content="nitpick — code review your agent's loop can gate on." />
 
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="nitpick — AI code review built for agents" />
-  <meta name="twitter:description" content="A code-review primitive for AI coding agents. Reviewers + scanners in parallel sandboxes. Stable JSON, typed exit codes." />
+  <meta name="twitter:title" content="nitpick — parallel AI code review for pull requests" />
+  <meta name="twitter:description" content="Specialist AI reviewers in parallel sandboxes, a verifier pass, and JSON plus exit codes to gate on." />
   <meta name="twitter:image" content="https://ilterkavlak.github.io/projects/nitpick/og-image.png" />
 
   <link rel="canonical" href="https://ilterkavlak.github.io/projects/nitpick/" />
   <link rel="stylesheet" href="../../assets/styles.css" />
-  <style>
-    /* nitpick — page-specific styling */
-    .np-pill {
-      display: inline-flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono);
-      font-size: 0.75rem; letter-spacing: 0.03em; color: var(--accent);
-      background: var(--accent-soft); border: 1px solid var(--border); padding: 0.3rem 0.75rem;
-      border-radius: 100px; margin-bottom: 1rem;
-    }
-    .np-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
-    .np-stats { display: flex; flex-wrap: wrap; gap: 1.5rem; margin-top: 1.75rem; padding: 0; }
-    .np-stats li { font-size: 0.9rem; color: var(--text-muted); }
-    .np-stats strong { display: block; font-size: 1.5rem; color: var(--heading); font-weight: 800; }
-    .np-term {
-      margin-top: 2rem; border: 1px solid var(--border); border-radius: var(--radius);
-      overflow: hidden; background: #0d1117; box-shadow: var(--shadow);
-    }
-    .np-term-chrome {
-      display: flex; align-items: center; gap: 0.4rem; padding: 0.6rem 0.9rem;
-      background: #161b22; border-bottom: 1px solid #262c36;
-    }
-    .np-term-chrome .light { width: 11px; height: 11px; border-radius: 50%; }
-    .np-term-chrome .r { background: #ff5f57; } .np-term-chrome .y { background: #febc2e; } .np-term-chrome .g { background: #28c840; }
-    .np-term-chrome .title { margin-left: 0.6rem; font-family: var(--font-mono); font-size: 0.75rem; color: #8b949e; }
-    .np-term pre { margin: 0; padding: 1.1rem 1.25rem; overflow-x: auto; font-size: 0.82rem; line-height: 1.7; color: #c9d1d9; }
-    .np-term .p { color: #2dd4bf; } .np-term .c { color: #79c0ff; } .np-term .a { color: #d2a8ff; }
-    .np-term .ok { color: #56d364; } .np-term .warn { color: #e3b341; } .np-term .dim { color: #6e7681; }
-
-    .np-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); gap: 1rem; margin-top: 1.5rem; }
-    .np-feature { padding: 1.25rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
-    .np-feature h3 { margin-bottom: 0.4rem; }
-    .np-feature p { font-size: 0.9rem; color: var(--text-muted); margin: 0; }
-
-    .np-play { padding: 1.4rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
-    .np-play-tag { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
-    .np-play h3 { margin: 0.4rem 0 0.5rem; }
-    .np-play p { font-size: 0.9rem; color: var(--text-muted); }
-    .np-play code { background: var(--bg-subtle); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.85em; }
-
-    .np-code { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-top: 1rem; background: var(--surface); }
-    .np-code-head {
-      display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.9rem;
-      background: var(--bg-subtle); border-bottom: 1px solid var(--border);
-      font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted);
-    }
-    .np-code-head button {
-      font: inherit; cursor: pointer; border: 1px solid var(--border-strong); background: var(--surface);
-      color: var(--text); border-radius: 6px; padding: 0.15rem 0.6rem; font-size: 0.72rem;
-    }
-    .np-code-head button:hover { color: var(--accent); border-color: var(--accent); }
-    .np-code pre { margin: 0; padding: 1rem 1.1rem; overflow-x: auto; font-size: 0.82rem; line-height: 1.65; color: var(--text); }
-    .np-code .cm { color: var(--text-muted); } .np-code .fl { color: var(--accent); }
-
-    .np-safety { margin-top: 1.5rem; padding: 1.25rem; border-left: 3px solid var(--accent); background: var(--bg-subtle); border-radius: 0 var(--radius) var(--radius) 0; }
-    .np-safety ul { margin: 0.6rem 0 0; padding: 0; }
-    .np-safety li { position: relative; padding-left: 1.1rem; margin-bottom: 0.35rem; font-size: 0.9rem; }
-    .np-safety li::before { content: "✓"; position: absolute; left: 0; color: var(--accent); }
-    .np-safety code { background: var(--surface); padding: 0.1rem 0.35rem; border-radius: 4px; }
-
-    .np-cta { margin-top: 3rem; padding: 2rem; text-align: center; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-subtle); }
-    .np-cta h2 { margin-bottom: 0.5rem; }
-    .np-cta .contact-row { justify-content: center; }
-  </style>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -108,153 +46,203 @@
 
   <main id="main" class="wrap wrap-wide">
     <header class="hero">
-      <div class="np-pill"><span class="dot"></span> Open source · built for agents</div>
-      <h1>The code-review primitive your agent's loop was missing.</h1>
+      <p class="status"><span class="dot" aria-hidden="true"></span>Open source · MIT · Node.js ≥ 22</p>
+      <h1>Parallel AI code review your agent can gate on.</h1>
       <p class="tagline">
-        nitpick runs specialist reviewers and scanners in parallel sandboxes against a pull
-        request or a branch, puts the findings through a verifier pass, and emits a stable JSON
-        verdict with meaningful exit codes. Wire it into a fix-until-clean loop, a pre-PR polish
-        step, or a CI gate — it never touches your git history.
+        nitpick runs five specialist AI reviewers and three scanners against a GitHub pull request
+        or a ref range at the same time; every AI agent gets its own disposable sandbox. A verifier on a
+        different model family checks every finding before you see it. Humans get a live terminal
+        and a markdown report; agents and CI get JSON and exit codes.
       </p>
       <div class="contact-row">
-        <a class="contact-btn primary" href="https://github.com/ilterkavlak/nitpick" target="_blank" rel="noopener">View on GitHub</a>
-        <a class="contact-btn" href="#agents">Built for agents</a>
+        <a class="contact-btn primary" href="https://github.com/ilterkavlak/nitpick" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-.87-.01-1.71-2.78.62-3.37-1.37-3.37-1.37-.45-1.18-1.11-1.5-1.11-1.5-.91-.64.07-.62.07-.62 1 .07 1.53 1.06 1.53 1.06.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.55-1.14-4.55-5.05 0-1.11.39-2.02 1.03-2.74-.1-.26-.45-1.3.1-2.71 0 0 .84-.28 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.41.2 2.45.1 2.71.64.72 1.03 1.63 1.03 2.74 0 3.92-2.34 4.78-4.57 5.03.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.25C22 6.58 17.52 2 12 2Z"/></svg>
+          View on GitHub
+        </a>
+        <a class="contact-btn" href="#install">Install</a>
+        <a class="contact-btn" href="#agents">Use it from agents &amp; CI</a>
       </div>
-      <ul class="np-stats">
-        <li><strong>5</strong> reviewer roles</li>
+      <ul class="lp-stats">
+        <li><strong>5</strong> AI reviewer roles</li>
         <li><strong>3</strong> scanners</li>
-        <li><strong>1</strong> verifier</li>
-        <li><strong>JSON</strong> contract</li>
+        <li><strong>1</strong> verifier on another model family</li>
+        <li><strong>0 / 1 / 2</strong> exit codes to branch on</li>
       </ul>
 
-      <div class="np-term" role="img" aria-label="nitpick terminal output">
-        <div class="np-term-chrome"><span class="light r"></span><span class="light y"></span><span class="light g"></span><span class="title">agent runner · zsh</span></div>
-        <pre><span class="p">$</span> <span class="c">nitpick review</span> <span class="a">https://github.com/org/repo/pull/42</span> <span class="dim">--json -</span>
-<span class="dim">→ fanning out 5 reviewers + 3 scanners in sandboxes…</span>
-  <span class="ok">✓ security</span>      <span class="dim">no blockers</span>
-  <span class="warn">! performance</span>   <span class="dim">1 finding (high)</span>
-  <span class="ok">✓ architecture</span>  <span class="dim">2 notes</span>
-  <span class="ok">✓ testing</span>       <span class="dim">clean</span>
-  <span class="ok">✓ dx</span>            <span class="dim">1 note</span>
-<span class="dim">→ verifier consolidating…</span>
-<span class="warn">verdict: changes-requested</span>  <span class="dim">risk: medium · blockers: 1 · exit 2</span></pre>
+      <div class="lp-term" role="img" aria-label="Example: nitpick reviewing a branch in ref mode and exiting with code 2 because a blocker was found">
+        <div class="lp-term-chrome"><span class="light r"></span><span class="light y"></span><span class="light g"></span><span class="title">agent runner · zsh</span></div>
+        <pre><span class="p">$</span> <span class="c">nitpick review</span> <span class="a">--repo org/repo --base main --head feature</span> \
+    <span class="a">--auto --non-interactive --json nitpick.json --exit-on blockers</span>
+<span class="dim">→ 5 reviewers + linter + summary, one sandbox each · secrets &amp; dependency scanners locally</span>
+  <span class="ok">✓ security</span>       <span class="dim">no findings</span>
+  <span class="warn">! performance</span>    <span class="dim">1 finding · high</span>
+  <span class="ok">✓ architecture</span>   <span class="dim">2 findings · low</span>
+  <span class="ok">✓ testing</span>        <span class="dim">no findings</span>
+  <span class="ok">✓ dx</span>             <span class="dim">1 finding · info</span>
+<span class="dim">→ verifier: 3 confirmed · 1 rejected</span>
+<span class="warn">verdict: request changes</span>  <span class="dim">risk 46/100 · 1 blocker</span>
+<span class="p">$</span> <span class="c">echo</span> $?
+2</pre>
       </div>
     </header>
 
-    <section class="section">
-      <h2 class="section-title">What's in the box</h2>
-      <h2>A review crew with a machine-readable verdict.</h2>
-      <p class="lede" style="margin-top:0.5rem;">
-        Humans get a colour-streamed terminal and a markdown report. Agents get structured JSON
-        and exit codes they can branch on. Same pipeline underneath.
-      </p>
-      <div class="np-grid">
-        <div class="np-feature"><h3>5 specialist reviewers</h3><p>Security, performance, architecture, testing, and DX — each a focused agent in its own sandbox.</p></div>
-        <div class="np-feature"><h3>3 automated scanners</h3><p>Secret detection, linter integration, and dependency checks run alongside the reviewers.</p></div>
-        <div class="np-feature"><h3>Verifier pass</h3><p>A second-pass agent re-checks every finding — confirms, adjusts, or rejects — before triage.</p></div>
-        <div class="np-feature"><h3>Stable JSON contract</h3><p>Verdict, risk, blockers, accepted findings, and suggested commits — a schema your loop can rely on.</p></div>
-        <div class="np-feature"><h3>Typed exit codes</h3><p>Branch on <code>0</code>, <code>findings</code>, <code>blockers</code>, or <code>changes-requested</code>. No log-scraping.</p></div>
-        <div class="np-feature"><h3>Never touches git</h3><p>Read-only against GitHub. No commits, pushes, or history rewrites — the agent applies fixes itself.</p></div>
+    <section class="section" aria-labelledby="features-h">
+      <div class="section-head">
+        <p class="section-title">What's in the box</p>
+        <h2 id="features-h">A review crew with a machine-readable verdict.</h2>
+        <p class="lede">Same pipeline underneath, two front doors: an interactive terminal for people, flags and JSON for automation.</p>
+      </div>
+      <div class="lp-grid">
+        <div class="lp-feature"><div class="ico" aria-hidden="true">🧑‍⚖️</div><h3>5 AI reviewer roles</h3><p><code>security</code>, <code>performance</code>, <code>architecture</code>, <code>testing</code> and <code>dx</code> — in any combination, in parallel.</p></div>
+        <div class="lp-feature"><div class="ico" aria-hidden="true">🛰️</div><h3>3 scanners</h3><p>Secrets (regex, local), dependencies (OSV.dev) and the project's own linter (in a sandbox).</p></div>
+        <div class="lp-feature"><div class="ico" aria-hidden="true">✅</div><h3>Verification stage</h3><p>A verifier on a different model family confirms, adjusts, deduplicates or rejects each finding.</p></div>
+        <div class="lp-feature"><div class="ico" aria-hidden="true">🗂️</div><h3>PR summary &amp; triage</h3><p>Overview, key changes and hotspot files first; then accept or dismiss each finding — or skip with <code>--auto</code>.</p></div>
+        <div class="lp-feature"><div class="ico" aria-hidden="true">📊</div><h3>Verdict</h3><p>Risk score 0–100, a merge recommendation, blockers and suggested commits.</p></div>
+        <div class="lp-feature"><div class="ico" aria-hidden="true">💬</div><h3>GitHub review</h3><p>Optionally post the verdict and inline comments as a PR review with <code>--post-review</code>.</p></div>
+        <div class="lp-feature"><div class="ico" aria-hidden="true">🧭</div><h3>Three modes</h3><p>Interactive picker, a direct PR URL, or a ref range (<code>--repo --base --head</code>) without a PR.</p></div>
+        <div class="lp-feature"><div class="ico" aria-hidden="true">⚙️</div><h3>Per-reviewer config</h3><p>Model and prompt override per role via flags, interactive setup or <code>.nitpick.yaml</code>.</p></div>
       </div>
     </section>
 
-    <section class="section" id="agents">
-      <h2 class="section-title">Built for agents</h2>
-      <h2>Wire it into your agent's loop.</h2>
-      <p class="lede" style="margin-top:0.5rem;">
-        Every invocation is a single atomic step: point at a ref or PR, get JSON back, branch on
-        the exit code. No state between runs.
-      </p>
-      <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));">
-        <article class="np-play">
-          <span class="np-play-tag">CI gate</span>
-          <h3>Pre-merge reviewer bot</h3>
-          <p>Runs on every PR push. Posts the verdict and inline comments as a GitHub review, fails CI on <code>changes-requested</code>.</p>
-        </article>
-        <article class="np-play">
-          <span class="np-play-tag">Fix-until-clean</span>
+    <section class="section" aria-labelledby="how-h">
+      <div class="section-head">
+        <p class="section-title">How it works</p>
+        <h2 id="how-h">Every agent gets its own throwaway sandbox.</h2>
+        <p class="lede">Each AI agent runs in an <a href="https://upstash.com/docs/box" target="_blank" rel="noopener">Upstash Box</a>. Repository code never runs on your machine.</p>
+      </div>
+      <ol class="lp-steps">
+        <li><strong>Fetch</strong><p>PR or compare metadata comes from the GitHub API, including whether the repository is private.</p></li>
+        <li><strong>Fan out</strong><p>Each reviewer role, the linter and the summarizer get their own Box: clone, check out the head, write the diff, delete stored git credentials — then the agent runs.</p></li>
+        <li><strong>Find</strong><p>Agents return schema-validated findings (severity, confidence, file, line, evidence, recommendation) while the secrets and dependency scanners run in parallel.</p></li>
+        <li><strong>Verify</strong><p>A verifier on a different model family re-reads the code and confirms, adjusts, deduplicates or rejects each finding.</p></li>
+        <li><strong>Decide</strong><p>You triage (or <code>--auto</code>). The verdict comes from accepted findings: a severity × confidence risk score, blockers (critical/high with ≥ 0.7 confidence) and a recommendation.</p></li>
+        <li><strong>Clean up</strong><p>Every Box is deleted when its job finishes, and again on exit, Ctrl+C or SIGTERM.</p></li>
+      </ol>
+    </section>
+
+    <section class="section" id="agents" aria-labelledby="agents-h">
+      <div class="section-head">
+        <p class="section-title">Built for agents &amp; CI</p>
+        <h2 id="agents-h">One atomic step: point at refs, read JSON, branch on the exit code.</h2>
+        <p class="lede">The building blocks: ref mode (no PR needed), <code>--auto</code>, <code>--non-interactive</code>, <code>--json</code>, <code>--exit-on</code> and <code>--no-report</code> (keeps the working tree clean).</p>
+      </div>
+      <div class="lp-two">
+        <div class="lp-table-wrap">
+          <table class="lp-table">
+            <thead><tr><th>Exit code</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td><code>0</code></td><td>Success, or <code>--exit-on none</code></td></tr>
+              <tr><td><code>1</code></td><td>Fatal error — or <code>--exit-on</code> is set and every AI reviewer failed, so the gate fails closed</td></tr>
+              <tr><td><code>2</code></td><td>The <code>--exit-on</code> condition matched</td></tr>
+              <tr><td><code>130</code></td><td>Interrupted (Ctrl+C)</td></tr>
+              <tr><td><code>143</code></td><td>Terminated (SIGTERM) after sandbox cleanup</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="lp-table-wrap">
+          <table class="lp-table">
+            <thead><tr><th><code>--exit-on</code></th><th>Exits 2 when…</th></tr></thead>
+            <tbody>
+              <tr><td><code>none</code></td><td>never (default)</td></tr>
+              <tr><td><code>findings</code></td><td>any accepted finding remains</td></tr>
+              <tr><td><code>blockers</code></td><td>the verdict has blockers</td></tr>
+              <tr><td><code>changes-requested</code></td><td>the recommendation is to request changes</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="lp-grid" style="margin-top:1rem;">
+        <article class="lp-feature">
+          <span class="tag">Fix-until-clean</span>
           <h3>Convergence loop</h3>
-          <p>Agent reads <code>verdict.blockers</code>, edits each <code>filePath:lineStart</code> per <code>recommendation</code>, commits, retries until clean.</p>
+          <p>Push, run with <code>--exit-on blockers</code>. On <code>2</code>, read <code>verdict.blockers</code>, edit each <code>filePath:lineStart</code> per its <code>recommendation</code>, commit, repeat. On <code>1</code>, stop and surface stderr.</p>
         </article>
-        <article class="np-play">
-          <span class="np-play-tag">Pre-PR polish</span>
+        <article class="lp-feature">
+          <span class="tag">Pre-PR polish</span>
           <h3>One-pass cleanup</h3>
-          <p>Before opening a PR: run once, apply high-severity <code>recommendation</code>s, commit grouped fixes via <code>suggestedCommits</code>, push.</p>
+          <p>Run once in ref mode, apply critical/high <code>acceptedFindings</code>, group the fixes with <code>verdict.suggestedCommits</code>, then open the PR.</p>
+        </article>
+        <article class="lp-feature">
+          <span class="tag">CI gate</span>
+          <h3>Reviewer bot</h3>
+          <p>On every push: <code>--auto --non-interactive --post-review --exit-on changes-requested</code>. The review lands on the PR; the job fails on <code>2</code>.</p>
         </article>
       </div>
 
-      <div class="np-safety">
-        <strong>Safety rails — what nitpick intentionally won't do:</strong>
+      <div class="lp-note">
+        <strong>What nitpick deliberately does not do</strong>
         <ul>
-          <li>No <code>git push</code>, <code>commit</code>, branch creation, or history rewrites.</li>
-          <li>No network calls beyond GitHub (read-only) and the sandbox.</li>
-          <li>No persistence of findings between runs — every invocation is stateless.</li>
+          <li>No <code>git push</code>, commits, branch creation or history rewrites — the agent applies fixes itself.</li>
+          <li>No state kept between runs.</li>
+          <li>No network calls other than GitHub, Upstash Box and OSV.dev.</li>
         </ul>
       </div>
     </section>
 
-    <section class="section">
-      <h2 class="section-title">Install</h2>
-      <h2>Up and running in a minute.</h2>
-      <p class="lede" style="margin-top:0.5rem;">
-        Requires Node.js and an Upstash Box account for sandboxing. GitHub token falls back to
-        <code>gh auth token</code> if unset.
-      </p>
-      <div class="np-code">
-        <div class="np-code-head"><span>Install</span><button type="button" data-copy>Copy</button></div>
-        <pre data-raw="# clone &amp; install
-git clone https://github.com/ilterkavlak/nitpick.git
-cd nitpick &amp;&amp; pnpm install
-cp .env.example .env
-
-# install the nitpick binary globally
-pnpm pack
-pnpm add -g ./nitpick-*.tgz
-
-# verify
-nitpick --help"><span class="cm"># clone &amp; install</span>
-git clone https://github.com/ilterkavlak/nitpick.git
-cd nitpick &amp;&amp; pnpm install
-cp .env.example .env
-
-<span class="cm"># install the nitpick binary globally</span>
-pnpm pack
-pnpm add -g ./nitpick-*.tgz
-
-<span class="cm"># verify</span>
-nitpick --help</pre>
+    <section class="section" aria-labelledby="security-h">
+      <div class="section-head">
+        <p class="section-title">Security model</p>
+        <h2 id="security-h">Designed for untrusted pull requests.</h2>
+        <p class="lede">A PR can contain prompt injections or malicious build scripts. The design assumes that can happen.</p>
       </div>
-      <div class="np-code">
-        <div class="np-code-head"><span>Usage</span><button type="button" data-copy>Copy</button></div>
-        <pre data-raw="# interactive — browse repos, pick a PR
-nitpick
-
-# one-shot review of a pull request
-nitpick review https://github.com/org/repo/pull/42
-
-# review a branch without an open PR
-nitpick review --repo org/repo --base main --head feature/xyz
-
-# agent / CI — JSON on stdout, exit code as the signal
-nitpick review --repo org/repo --base main --head feature \
-  --auto --non-interactive --json - --exit-on blockers"><span class="cm"># interactive — browse repos, pick a PR</span>
-nitpick
-
-<span class="cm"># one-shot review of a pull request</span>
-nitpick review https://github.com/org/repo/pull/42
-
-<span class="cm"># review a branch without an open PR</span>
-nitpick review <span class="fl">--repo</span> org/repo <span class="fl">--base</span> main <span class="fl">--head</span> feature/xyz
-
-<span class="cm"># agent / CI — JSON on stdout, exit code as the signal</span>
-nitpick review <span class="fl">--repo</span> org/repo <span class="fl">--base</span> main <span class="fl">--head</span> feature \
-  <span class="fl">--auto --non-interactive --json - --exit-on</span> blockers</pre>
+      <div class="lp-table-wrap">
+        <table class="lp-table">
+          <thead><tr><th>Runs on</th><th>What runs there</th><th>What it can access</th></tr></thead>
+          <tbody>
+            <tr><td>Your machine</td><td>The CLI, the secrets scanner, verdict and reporting</td><td>Your tokens; never runs repository code</td></tr>
+            <tr><td>Upstash Box</td><td>Agents and repository code (e.g. the linter)</td><td>The cloned repository; no GitHub credentials once setup finishes</td></tr>
+            <tr><td>GitHub</td><td>Metadata and diff reads; review posting with <code>--post-review</code></td><td>The read token; the review token only when posting</td></tr>
+            <tr><td>OSV.dev</td><td>Vulnerability lookups</td><td>Names and versions of newly added dependencies</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="lp-note">
+        <p><strong>Honest disclosure:</strong> nitpick was vibe coded — written mostly by AI coding assistants under human direction and review. It has a test suite, CI, pinned dependencies and a documented security model, but it is young software. Read the <a href="https://github.com/ilterkavlak/nitpick#security-model" target="_blank" rel="noopener">security model</a> before pointing it at private code, and give it least-privilege, fine-grained tokens.</p>
       </div>
     </section>
 
-    <div class="np-cta">
+    <section class="section" id="install" aria-labelledby="install-h">
+      <div class="section-head">
+        <p class="section-title">Install</p>
+        <h2 id="install-h">Up and running in a minute.</h2>
+        <p class="lede">Needs Node.js ≥ 22, pnpm 10 and an Upstash Box API key with agent access. Credentials come from environment variables — nitpick does not read <code>.env</code> files itself. Public repositories need no GitHub token.</p>
+      </div>
+      <div class="lp-code">
+        <div class="lp-code-head"><span>Quick start</span><button type="button" data-copy>Copy</button></div>
+        <pre><span class="cm"># clone, install, run interactively</span>
+git clone https://github.com/ilterkavlak/nitpick.git &amp;&amp; cd nitpick
+pnpm install
+export UPSTASH_BOX_API_KEY=...
+pnpm start</pre>
+      </div>
+      <div class="lp-code">
+        <div class="lp-code-head"><span>Global <code>nitpick</code> command</span><button type="button" data-copy>Copy</button></div>
+        <pre><span class="cm"># the tarball path must be absolute for pnpm add -g</span>
+pnpm pack
+pnpm add -g "$PWD"/nitpick-*.tgz
+nitpick --help</pre>
+      </div>
+      <div class="lp-code">
+        <div class="lp-code-head"><span>Usage</span><button type="button" data-copy>Copy</button></div>
+        <pre><span class="cm"># browse repos and pick a PR</span>
+nitpick
+
+<span class="cm"># review a PR with human triage</span>
+nitpick review https://github.com/org/repo/pull/42
+
+<span class="cm"># review a branch without a PR</span>
+nitpick review <span class="fl">--repo</span> org/repo <span class="fl">--base</span> main <span class="fl">--head</span> feature
+
+<span class="cm"># coding-agent fix loop: JSON to a file, exit code as the signal</span>
+nitpick review <span class="fl">--repo</span> org/repo <span class="fl">--base</span> main <span class="fl">--head</span> feature \
+  <span class="fl">--auto --non-interactive --no-report --json</span> nitpick.json <span class="fl">--exit-on</span> blockers</pre>
+      </div>
+    </section>
+
+    <div class="lp-cta">
       <h2>Hand your agent a review step it can trust.</h2>
-      <p class="muted">Open source. No telemetry. Bring your own sandbox and GitHub credentials.</p>
+      <p class="muted">Open source under MIT. Bring your own Upstash Box key and GitHub tokens.</p>
       <div class="contact-row">
         <a class="contact-btn primary" href="https://github.com/ilterkavlak/nitpick" target="_blank" rel="noopener">Star on GitHub</a>
         <a class="contact-btn" href="https://github.com/ilterkavlak/nitpick#readme" target="_blank" rel="noopener">Read the README</a>
@@ -269,18 +257,5 @@ nitpick review <span class="fl">--repo</span> org/repo <span class="fl">--base</
   </footer>
 
   <script src="../../assets/app.js"></script>
-  <script>
-    document.addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-copy]');
-      if (!btn) return;
-      var pre = btn.closest('.np-code').querySelector('pre');
-      var raw = pre.getAttribute('data-raw') || pre.textContent;
-      var txt = raw.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-      navigator.clipboard.writeText(txt).then(function () {
-        var old = btn.textContent; btn.textContent = 'Copied';
-        setTimeout(function () { btn.textContent = old; }, 1500);
-      }).catch(function () {});
-    });
-  </script>
 </body>
 </html>

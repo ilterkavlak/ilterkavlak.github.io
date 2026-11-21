@@ -9,8 +9,9 @@ step, deployed by GitHub Pages straight from `main`.
   CSS file, and one small JS file.
 - **Minimal dependencies.** The only third-party resource is **Google Fonts**
   (Space Grotesk + Manrope + JetBrains Mono), `@import`ed once at the top of
-  `assets/styles.css` so pages only link that one stylesheet. Icons are inline SVG or
-  emoji — no icon library. There is no npm supply chain to audit.
+  `assets/styles.css` so pages only link that one stylesheet. The Splash game also loads
+  the Fredoka family on its own page. Icons are inline SVG or emoji — no icon library.
+  There is no npm supply chain to audit.
 - **Relative links everywhere.** Pages reference assets and each other with relative
   paths (and link to explicit `index.html` files), so the site renders both by
   double-clicking a file (`file://`) and when served — no build or dev server required.
@@ -22,17 +23,19 @@ step, deployed by GitHub Pages straight from `main`.
 
 ```
 index.html            Home — hero + contact at top, About, Experience, links out
-assets/styles.css     The entire theme (light + dark). Every page links this.
-assets/app.js         renderCards() for listing pages + fills the year.
-data/projects.js      window.PROJECTS — drives the Projects listing
+assets/styles.css     The entire theme (light + dark), incl. shared .lp-* landing-page
+                      components. Every site page links this.
+assets/app.js         renderCards() for listing pages, the year, code-block copy buttons,
+                      scroll reveal.
+data/projects.js      window.PROJECTS — drives the Projects listing and home "Featured projects"
 data/posts.js         window.POSTS — drives the Blog listing (empty => "under construction")
 data/games.js         window.GAMES — drives the Games listing
 projects/index.html   Projects listing (reads data/projects.js)
-projects/<slug>/      One folder per project (see projects/nitpick/)
+projects/<slug>/      One folder per project (see projects/nitpick/, projects/blobshelf/)
 blog/index.html       Blog listing (reads data/posts.js)
 blog/<slug>/          One folder per post
 games/index.html      Games listing (reads data/games.js)
-games/<slug>/         One folder per game (see games/splash/)
+games/<slug>/         One folder per game (games/splash/ = index.html + splash.js)
 templates/            Copy-me starting points: project.html, post.html, game.html
 ```
 
@@ -52,17 +55,26 @@ Every category works the same way — **two steps, no listing markup to edit:**
 
 ### A project
 1. Copy `templates/project.html` → `projects/<slug>/index.html` and fill it in.
-   (`projects/nitpick/index.html` is a richer worked example.)
+   (`projects/nitpick/` and `projects/blobshelf/` are richer worked examples.)
 2. Prepend an entry to `data/projects.js`.
 
 ### A game
 1. Copy `templates/game.html` → `games/<slug>/index.html` and build the game (keep it
-   dependency-free). (`games/splash/index.html` is a worked example.)
+   dependency-free). (`games/splash/` is a worked example.)
 2. Prepend an entry to `data/games.js`.
 
 Card fields: `title`, `href`, `meta` (optional), `tagline` (optional), `foot` (optional,
-defaults to "Open →"). If a data array is empty, its listing shows a friendly
-"under construction" state instead of cards.
+defaults to "Open →"), `icon` (optional emoji) and `accent` (optional `#hex` colour). If a
+data array is empty, its listing shows a friendly "under construction" state instead of cards.
+
+## Splash
+
+A calm vehicle toy for toddlers. Keys are read by physical position (`KeyboardEvent.code`):
+the left half of the keyboard plays the left half of the scene and the right half the right,
+and the key row picks the height (digits = sky … bottom letter row = road; Space = bus).
+**Left Ctrl + Enter** toggles full screen. Camera mode compares small, mirrored frames
+in the browser to find movement in each part of the picture; no video leaves the device.
+Vehicle names are spoken in Turkish (browser speech; toggle in the top bar).
 
 ## Preview locally
 

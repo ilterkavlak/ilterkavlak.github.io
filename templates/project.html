@@ -9,9 +9,12 @@
        the projects listing, so it is just "<slug>/index.html":
          { title: '{{TITLE}}', href: '{{SLUG}}/index.html',
            meta: '{{YEAR}} · {{STATUS}} · {{STACK}}',
-           tagline: '{{TAGLINE}}', foot: 'Landing page →' }
-  The Projects listing picks it up automatically.
-  For a richer page, see /projects/nitpick/index.html as a worked example.
+           tagline: '{{TAGLINE}}', foot: 'Landing page →',
+           icon: '{{EMOJI}}', accent: '#{{HEX}}' }   // icon and accent are optional
+  The Projects listing and the home page's "Featured projects" pick it up automatically.
+  For richer pages, see /projects/nitpick/ and /projects/blobshelf/: they use the shared
+  .lp-* landing components from assets/styles.css (stats, terminal, feature grid,
+  steps, code block with copy button, tables, callout, CTA).
 -->
 <html lang="en">
 <head>
@@ -46,20 +49,20 @@
 
   <main id="main" class="wrap wrap-wide">
     <header class="hero">
-      <p class="role">{{YEAR}} · {{STATUS}}</p>
+      <p class="status"><span class="dot" aria-hidden="true"></span>{{YEAR}} · {{STATUS}}</p>
       <h1>{{TITLE}}</h1>
       <p class="tagline">{{TAGLINE}}</p>
       <div class="contact-row">
         <a class="contact-btn primary" href="{{REPO_URL}}" target="_blank" rel="noopener">View on GitHub</a>
       </div>
-      <div class="tag-list">
+      <div class="lp-badges">
         <span class="tag">{{TECH_1}}</span>
         <span class="tag">{{TECH_2}}</span>
       </div>
     </header>
 
     <section class="section prose">
-      <h2 class="section-title">Overview</h2>
+      <p class="section-title">Overview</p>
       <p>{{WHAT_IT_IS}}</p>
     </section>
 

@@ -1,13 +1,25 @@
-/* Projects — single source of truth for the Projects listing.
+/* Projects — single source of truth for the Projects listing
+   (and the "Featured projects" section on the home page).
    To add a project: (1) copy /templates/project.html to
    /projects/<slug>/index.html and fill it in, then (2) prepend
    an entry here. Newest first. See README.md. */
 window.PROJECTS = [
   {
+    title: 'blobshelf',
+    href: 'blobshelf/index.html',
+    meta: '2026 · Active · Swift · macOS',
+    tagline: 'Your Upstash Blob buckets as a drive on your Mac, with automatic folder backups. Native, sandboxed, zero dependencies.',
+    foot: 'Landing page →',
+    icon: '🗄️',
+    accent: '#3b82f6'
+  },
+  {
     title: 'nitpick',
     href: 'nitpick/index.html',
-    meta: '2025 · Active · TypeScript · CLI',
-    tagline: "An AI code-review primitive built for agents. Parallel specialist reviewers and scanners run in sandboxes, then a verifier emits a machine-readable verdict your loop can gate on.",
-    foot: 'Landing page →'
+    meta: '2026 · Active · TypeScript · CLI',
+    tagline: 'Parallel AI code review for GitHub pull requests. Specialist reviewers run in isolated sandboxes, a verifier checks every finding, and agents get JSON plus exit codes to gate on.',
+    foot: 'Landing page →',
+    icon: '🔎',
+    accent: '#14b8a6'
   }
 ];
