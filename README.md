@@ -74,7 +74,12 @@ the left half of the keyboard plays the left half of the scene and the right hal
 and the key row picks the height (digits = sky … bottom letter row = road; Space = bus).
 **Left Ctrl + Enter** toggles full screen. Camera mode compares small, mirrored frames
 in the browser to find movement in each part of the picture; no video leaves the device.
-Vehicle names are spoken in Turkish (browser speech; toggle in the top bar).
+Vehicle names are spoken in Turkish from recorded clips in `games/splash/sounds/` (toggle in
+the top bar), so no Turkish voice is needed on the player's device. To re-record one (macOS):
+
+```sh
+say -v Yelda -r 150 -o /tmp/x.aiff "Kepçe" && afconvert -f m4af -d aac -b 48000 -c 1 /tmp/x.aiff games/splash/sounds/excavator.m4a
+```
 
 ## Preview locally
 

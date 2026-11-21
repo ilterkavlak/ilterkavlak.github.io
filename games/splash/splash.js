@@ -127,35 +127,51 @@
   };
 
   /* ---------- Spoken names (Turkish) ---------- */
-  var namesOn = true, trVoice = null;
-  var synth = window.speechSynthesis;
+  // Recorded clips (sounds/<vehicle>.m4a) rather than browser speech: browsers without a
+  // Turkish voice read the names with an English one.
+  var namesOn = true, clips = {}, speaking = null;
 
-  function pickVoice() {
-    var voices = synth.getVoices();
-    for (var i = 0; i < voices.length; i++) {
-      if (/^tr/i.test(voices[i].lang)) { trVoice = voices[i]; return; }
-    }
-  }
-  if (synth) {
-    pickVoice();
-    if (synth.addEventListener) synth.addEventListener('voiceschanged', pickVoice);
+  function stopName() {
+    if (speaking) speaking.pause();
+    speaking = null;
   }
 
-  function say(text) {
-    if (!synth || !namesOn || !soundOn || typeof SpeechSynthesisUtterance === 'undefined') return;
-    var u = new SpeechSynthesisUtterance(text);
-    u.lang = 'tr-TR';
-    if (trVoice) u.voice = trVoice;
-    u.rate = 0.85;
-    u.pitch = 1.1;
-    if (synth.speaking) synth.cancel();
-    synth.speak(u);
+  function clip(id) {
+    return clips[id] || (clips[id] = new Audio('sounds/' + id + '.m4a'));
+  }
+
+  // iOS only lets a media element play from script once it has played during a tap,
+  // and touch "pointerdown" doesn't count; so play every clip silently on the start tap.
+  function unlockClips() {
+    Object.keys(VEHICLES).forEach(function (id) {
+      var a = clip(id);
+      a.muted = true;
+      var p = a.play();
+      if (p && p.then) {
+        p.then(function () {
+          if (speaking !== a) { a.pause(); a.currentTime = 0; } // keep a name requested meanwhile
+          a.muted = false;
+        }).catch(function () { a.muted = false; });
+      } else {
+        a.muted = false;
+      }
+    });
+  }
+
+  function sayName(id) {
+    if (!namesOn || !soundOn) return;
+    stopName();
+    var a = clip(id);
+    a.muted = false;
+    a.currentTime = 0;
+    speaking = a;
+    var p = a.play();
+    if (p && p.catch) p.catch(function () {});
   }
 
   /* ---------- Vehicles ---------- */
   var VEHICLES = {
     plane: {
-      name: 'Uçak',
       play: function () {
         sfx.whoosh(3.4);
         return anim(part('plane', 'move'), [
@@ -170,7 +186,6 @@
       }
     },
     helicopter: {
-      name: 'Helikopter',
       play: function () {
         sfx.rotor(3.6);
         anim(part('helicopter', 'rotor'), [{ transform: 'scaleX(1)' }, { transform: 'scaleX(0.12)' }, { transform: 'scaleX(1)' }], 200, 'linear', 18);
@@ -185,7 +200,6 @@
       }
     },
     lift: {
-      name: 'Lift',
       play: function () {
         sfx.up();
         sfx.down(2.2);
@@ -200,7 +214,6 @@
       }
     },
     crane: {
-      name: 'Vinç',
       play: function () {
         sfx.up();
         sfx.down(2);
@@ -222,7 +235,6 @@
       }
     },
     dump: {
-      name: 'Kamyon',
       play: function () {
         sfx.engine(1.2);
         sfx.clunk(1.3);
@@ -242,7 +254,6 @@
       }
     },
     forklift: {
-      name: 'Forklift',
       play: function () {
         sfx.up();
         sfx.down(1.8);
@@ -253,7 +264,6 @@
       }
     },
     excavator: {
-      name: 'Kepçe',
       play: function () {
         sfx.engine(2.4);
         sfx.clunk(1.2);
@@ -276,15 +286,12 @@
       }
     },
     car: {
-      name: 'Araba',
       play: function () { sfx.horn(); sfx.engine(2.8); return outAndBack(part('car', 'move'), 420, 3400); }
     },
     motorcycle: {
-      name: 'Motosiklet',
       play: function () { sfx.vroom(); return outAndBack(part('motorcycle', 'move'), 230, 2800); }
     },
     mixer: {
-      name: 'Beton mikseri',
       play: function () {
         sfx.engine(3.2);
         anim(part('mixer', 'stripes'), [{ transform: 'translateX(0px)' }, { transform: 'translateX(60px)' }], 500, 'linear', 7);
@@ -292,11 +299,9 @@
       }
     },
     truck: {
-      name: 'Tır',
       play: function () { sfx.horn(); sfx.engine(3); return outAndBack(part('truck', 'move'), 260, 3400); }
     },
     bus: {
-      name: 'Otobüs',
       play: function () {
         sfx.horn();
         sfx.engine(5);
@@ -326,7 +331,7 @@
     if (busy[id]) return false;
     busy[id] = true;
     zones.forEach(glow);
-    say(VEHICLES[id].name);
+    sayName(id);
     VEHICLES[id].play().then(function () { busy[id] = false; });
     return true;
   }
@@ -548,6 +553,7 @@
   function start(mode) {
     started = true;
     audio();
+    unlockClips();
     enterFullscreen();
     document.body.classList.add('is-started');
     if (mode === 'camera') startCamera().catch(function (err) { toast(cameraError(err)); });
@@ -569,11 +575,11 @@
       soundOn = !soundOn;
       setPressed('sound', soundOn);
       if (master) master.gain.value = soundOn ? 0.6 : 0;
-      if (!soundOn && synth) synth.cancel();
+      if (!soundOn) stopName();
     } else if (action === 'names') {
       namesOn = !namesOn;
       setPressed('names', namesOn);
-      if (!namesOn && synth) synth.cancel();
+      if (!namesOn) stopName();
     } else if (action === 'fullscreen') {
       enterFullscreen();
     }
